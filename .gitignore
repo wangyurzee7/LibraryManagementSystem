@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# Mongodb
+mongodb/
+runmongod.sh
