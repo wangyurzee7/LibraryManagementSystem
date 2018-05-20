@@ -11,12 +11,14 @@ using namespace std;
 
 
 class Database{
+private:
 	// mongocxx::instance inst;
 	mongocxx::client client;
 	mongocxx::database db;
 	mongocxx::collection userCollection;
 	mongocxx::collection bookCollection;
 	mongocxx::collection recordCollection;
+public:
 	Database(const string&);
 };
 
