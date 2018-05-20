@@ -19,6 +19,7 @@ private:
 	mongocxx::collection bookCollection;
 	mongocxx::collection recordCollection;
 public:
+	Database();
 	Database(const string&);
 };
 

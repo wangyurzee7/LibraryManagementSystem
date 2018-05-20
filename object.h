@@ -11,7 +11,7 @@ private:
 	set<Field> attribute;
 public:
 	Object();
-	string operator [](const string&);
-	void update(const string&,const string&);
-	void update(const Field&);
+	string operator [](const string&); // Type of return value is string(NOT string&!! ) !!
+	void update(const string&,const string&); // If key exists, overwrite it. Or create it.
+	void update(const Field&); // The same use as the function above.
 };
