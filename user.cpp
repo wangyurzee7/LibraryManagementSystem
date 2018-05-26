@@ -9,21 +9,21 @@ string User::typeName(){
 }
 
 vector<string> User::uniqueKey(){
-	return {"username"};
+	return {"Username"};
 }
 vector<string> User::implicitKey(){
-	return {"realname","school","remarks"};
+	return {};
 }
 vector<string> User::explicitKey(){
-	return {};
+	return {"Username","Role","Realname","School","Remarks"};
 }
 
 
 User::User(const string& username){
-	Object::update("username",username);
+	Object::update("Username",username);
 }
 User::User(const string& username,const string& pwd):password(pwd){
-	Object::update("username",username);
+	Object::update("Username",username);
 }
 void User::enterPassword(const string& pwd){
 	password=Password(pwd);
