@@ -8,15 +8,9 @@ using namespace std;
 
 class Object{
 protected:
-	/* const string typeName;
-	const vector<string> uniqueKey;
-	const vector<string> implicitKey;
-	const vector<string> explicitKey; */
-	
 	set<Field> attribute;
 public:
 	Object();
-	// Object(const string&,const vector<string>&,const vector<string>&,const vector<string>&);
 	string operator [](const string&); // Type of return value is string(NOT string&!! ) !!
 	void update(const string&,const string&); // If key exists, overwrite it. Or create it.
 	void update(const Field&); // The same use as the function above.
