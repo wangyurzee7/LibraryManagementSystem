@@ -11,10 +11,6 @@ Encryptor* Password::encryptor=new EncryptorMD5(); // MD5 encryption is used by 
 Password::Password():ciphertext(encryptor->encrypt("")){}
 Password::Password(const string &pwd):ciphertext(encryptor->encrypt(pwd)){}
 
-// Return the ciphertext of password.
-string Password::toString(){
-	return ciphertext;
-}
 
 istream& operator >>(istream &in,Password &dst){
 	string pwd;

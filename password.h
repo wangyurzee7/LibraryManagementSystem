@@ -2,6 +2,7 @@
 #include <bits/stdc++.h>
 
 #include "encryptor.h"
+#include "database.h"
 
 using namespace std;
 
@@ -11,7 +12,7 @@ class Password{
 public:
 	Password();
 	Password(const string&);
-	string toString(); // Caution!!! (Don't XJB use it! )
 	friend istream& operator >>(istream&,Password&);
 	friend ostream& operator <<(istream&,const Password&);
+	friend Database;
 };

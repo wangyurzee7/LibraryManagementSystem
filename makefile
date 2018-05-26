@@ -1,7 +1,6 @@
 # Build options
 CC=g++
-CFLAGS=-std=c++11
-DBFLAGS=-I/usr/local/include/mongocxx/v_noabi -I/usr/local/include/bsoncxx/v_noabi -L/usr/local/lib -lmongocxx -lbsoncxx
+CFLAGS=-std=c++11 -I/usr/local/include/mongocxx/v_noabi -I/usr/local/include/bsoncxx/v_noabi -L/usr/local/lib -lmongocxx -lbsoncxx
 
 
 
@@ -24,5 +23,5 @@ password.o: password.cpp password.h encryptor.h
 	c++ ${CFLAGS} -c $< -o $@
 
 database.o: database.cpp database.h
-	c++ ${CFLAGS} ${DBFLAGS} -c $< -o $@
+	c++ ${CFLAGS} -c $< -o $@
 
