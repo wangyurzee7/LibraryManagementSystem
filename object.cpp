@@ -6,6 +6,10 @@ using namespace std;
 
 #include "object.h"
 
+/*
+(const string& _typeName,const vector<string>& _uniqueKey,const vector<string>& _implicitKey,const vector<string>& _explicitKey):typeName(_typeName),uniqueKey(_uniqueKey),implicitKey(_implicitKey),explicitKey(_explicitKey)
+*/
+
 Object::Object(){
 	attribute.clear();
 }

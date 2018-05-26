@@ -5,12 +5,15 @@ CFLAGS=-std=c++11 -I/usr/local/include/mongocxx/v_noabi -I/usr/local/include/bso
 
 
 # Build targets
-all: field.o object.o database.o md5.o encryptor.o password.o
+all: field.o object.o database.o md5.o encryptor.o password.o user.o
 
 field.o: field.cpp field.h
 	c++ ${CFLAGS} -c $< -o $@
 
 object.o: object.cpp object.h field.h
+	c++ ${CFLAGS} -c $< -o $@
+
+user.o: user.cpp user.h object.h field.h
 	c++ ${CFLAGS} -c $< -o $@
 
 md5.o: md5.cpp md5.h
