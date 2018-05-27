@@ -12,7 +12,7 @@ vector<string> User::uniqueKey(){
 	return {"Username"};
 }
 vector<string> User::implicitKey(){
-	return {};
+	return {"Status"};
 }
 vector<string> User::explicitKey(){
 	return {"Username","Role","Realname","School","Remarks"};

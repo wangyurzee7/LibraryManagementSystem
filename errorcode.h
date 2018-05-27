@@ -1,7 +1,9 @@
+#pragma once
 enum ErrorCode{
 	succeeded=0,
 	
 	objectNotFound,
+	typeError,
 	
 	permissionDenied,
 	needRoot,
@@ -11,10 +13,15 @@ enum ErrorCode{
 	
 	noSuchUser,
 	wrongPassowrd,
-	needToConfirmPassword
+	needToConfirmPassword,
 	
-	bookNotReturned,
+	bookAlreadyBorrowed,
 	bookAlreadyReturned,
+	
+	requestAlreadyProcessed,
+	
+	objectNotFrozen,
+	objectAlreadyFrozen,
 	
 	previewFileDoesNotFound,
 	

@@ -12,7 +12,7 @@ vector<string> Book::uniqueKey(){
 	return {"No"};
 }
 vector<string> Book::implicitKey(){
-	return {"Url"};
+	return {"Url","Status"};
 }
 vector<string> Book::explicitKey(){
 	return {"No","Name","Author","ISBN","Publisher","Remarks"};

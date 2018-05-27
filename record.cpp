@@ -15,7 +15,7 @@ vector<string> Record::implicitKey(){
 	return {"Type"}; // This field has 4 possible values: "Borrowing", "Returning", "Browsing", "Previewing"
 }
 vector<string> Record::explicitKey(){
-	return {"Id","Username","BookNo","BookIndex","Remarks"};
+	return {"Id","Username","BookNo","BookIndex","Remarks","Time"};
 }
 
 
