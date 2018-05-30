@@ -3,6 +3,7 @@ enum ErrorCode{
 	noError=0,
 	
 	objectNotFound,
+	bookNotFound,
 	typeError,
 	
 	permissionDenied,
@@ -16,9 +17,11 @@ enum ErrorCode{
 	loginFailed,
 	loginAgain,
 	
-	bookAlreadyBorrowed,
-	bookAlreadyReturned,
+	bookInaccessible,
+	bookNotBorrowed,
+	bookNotBorrowedByCurrentUser,
 	
+	requestAlreadySubmitted,
 	requestAlreadyProcessed,
 	
 	objectNotFrozen,

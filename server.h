@@ -22,6 +22,7 @@ using namespace std;
 class Server{
 private:
 	Database* db;
+	string getTime();
 public:
 	Server(Database* ptr);
 	template<typename ObjType>

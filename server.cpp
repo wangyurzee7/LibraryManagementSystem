@@ -4,6 +4,14 @@ using namespace std;
 
 #include "server.h"
 
+string Server::getTime(){
+	const int bufferLen=50;
+	
+	char buffer[bufferLen];
+	time_t __t(time(0));
+	strftime(buffer,sizeof(buffer),"%Y/%02m/%d %H:%M:%S",localtime(&__t));
+	return buffer;
+}
 
 Server::Server(Database* ptr):db(ptr){}
 
@@ -22,7 +30,7 @@ ErrorCode Server::search(const User &currentUser,const Search& key,vector<ObjTyp
 		case "ParcticalBook":
 			authority=1;
 		case "Record":
-			authority=db->isAdmin(currentUser);
+			authority=db->isAdmin(currentUser)||currentUser["username"]==key["username"];
 	}
 	
 	if (authority){
@@ -58,7 +66,7 @@ ErrorCode Server::add(const User &currentUser,const ObjType &obj){
 		case "ParcticalBook":
 			authority=db->isAdmin(currentUser);
 		case "Record":
-			authority=db->isRoot(currentUser);
+			authority=0;
 	}
 	
 	if (authority){
@@ -137,9 +145,55 @@ ErrorCode Server::userLogin(const User& user){
 }
 
 ErrorCode Server::borrowBook(const User& currentUser,const PracticalBook& book){
+	PracticalBook res=book;
+	if (!db->findOne(res)) return bookNotFound;
 	
+	if (res["Status"]!="Accessible") return bookInaccessible;
+	
+	return db->update(Record({
+		Field("Id",db->newRecordId()),
+		Field("Username",currentUser["Username"]),
+		Field("BookNo",res["No"]),
+		Field("BookIndex",res["Index"]),
+		Field("Status","Pending"),
+		Field("Time",getTime()),
+		Field("Type","Borrowing")
+	}));
 }
-// ErrorCode returnBook(const User& currentUser,const PracticalBook& book);
+ErrorCode Server::returnBook(const User& currentUser,const PracticalBook& book){
+	PracticalBook res=book;
+	if (!db->findOne(res)) return bookNotFound;
+	
+	if (res["Status"]!="Borrowed") return bookNotBorrowed;
+	
+	if (!db->objectExist(Record({
+		Field("Username",currentUser["Username"]),
+		Field("BookNo",book["No"]),
+		Field("BookIndex",book["Index"]),
+		Field("Status","Pending"),
+		Field("Type","Returning")
+	})))
+		return requestAlreadySubmitted;
+	
+	if (!db->objectExist(Record({
+		Field("Username",currentUser["Username"]),
+		Field("BookNo",book["No"]),
+		Field("BookIndex",book["Index"]),
+		Field("Status","Accepted"),
+		Field("Type","Borrowing")
+	})))
+		return bookNotBorrowedByCurrentUser;
+	
+	return db->update(Record({
+		Field("Id",db->newRecordId()),
+		Field("Username",currentUser["Username"]),
+		Field("BookNo",res["No"]),
+		Field("BookIndex",res["Index"]),
+		Field("Status","Pending"),
+		Field("Time",getTime()),
+		Field("Type","Returning")
+	}));
+}
 
 /*
 ErrorCode acceptRequest(const User& currentUser,const Record& record);
