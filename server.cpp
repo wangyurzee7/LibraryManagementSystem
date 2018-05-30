@@ -9,7 +9,7 @@ Server::Server(Database* ptr):db(ptr){}
 
 template<typename ObjType>
 ErrorCode Server::search(const User &currentUser,const Search& key,vector<ObjType> &ret){
-	if (int(key.invalidFields().size())>0) return invalidKey;
+	if (!key.invalidFields().empty()) return invalidKey;
 	
 	if (!db->userExist(currentUser)) return loginAgain;
 	
@@ -38,7 +38,7 @@ ErrorCode Server::search(const User &currentUser,const Search& key,vector<ObjTyp
 
 template<typename ObjType>
 ErrorCode Server::add(const User &currentUser,const ObjType &obj){
-	if (int(obj.invalidFields().size())>0) return invalidInfo;
+	if (!obj.invalidFields().empty()) return invalidInfo;
 	
 	if (!db->userExist(currentUser)) return loginAgain;
 	
@@ -73,7 +73,7 @@ ErrorCode Server::add(const User &currentUser,const ObjType &obj){
 
 template<typename ObjType>
 ErrorCode Server::update(const User &currentUser,const ObjType &obj){
-	if (int(obj.invalidFields().size())>0) return invalidInfo;
+	if (!obj.invalidFields().empty()) return invalidInfo;
 	
 	if (!db->userExist(currentUser)) return loginAgain;
 	
@@ -122,7 +122,7 @@ ErrorCode Server::remove(const User &currentUser,const ObjType &obj){
 
 
 ErrorCode Server::userRegister(const User& user){
-	if (int(user.invalidFields().size())>0) return invalidInfo;
+	if (!user.invalidFields().empty()) return invalidInfo;
 	
 	if (user["Role"]!="Reader") return permissionDenied;
 	
@@ -135,10 +135,13 @@ ErrorCode Server::userLogin(const User& user){
 	
 	return noError;
 }
-/*
-ErrorCode borrowBook(const User& currentUser,const PracticalBook& book);
-ErrorCode returnBook(const User& currentUser,const PracticalBook& book);
 
+ErrorCode Server::borrowBook(const User& currentUser,const PracticalBook& book){
+	
+}
+// ErrorCode returnBook(const User& currentUser,const PracticalBook& book);
+
+/*
 ErrorCode acceptRequest(const User& currentUser,const Record& record);
 ErrorCode rejectRequest(const User& currentUser,const Record& record);
 

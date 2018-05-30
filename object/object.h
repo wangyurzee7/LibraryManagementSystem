@@ -13,4 +13,6 @@ public:
 	virtual vector<string> uniqueKey() const=0;
 	virtual vector<string> implicitKey() const=0;
 	virtual vector<string> explicitKey() const=0;
+	virtual FormatInfo formatInfo() const;
+	virtual FormatInfo invalidFields() const;
 };
