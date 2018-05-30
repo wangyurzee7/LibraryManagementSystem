@@ -11,11 +11,11 @@ protected:
 	set<Field> attribute;
 public:
 	Object();
-	string operator [](const string&); // Type of return value is string(NOT string&!! ) !!
+	string operator [](const string&) const; // Type of return value is string(NOT string&!! ) !!
 	void update(const string&,const string&); // If key exists, overwrite it. Or create it.
 	void update(const Field&); // The same use as the function above.
-	virtual string typeName()=0;
-	virtual vector<string> uniqueKey()=0;
-	virtual vector<string> implicitKey()=0;
-	virtual vector<string> explicitKey()=0;
+	virtual string typeName() const=0;
+	virtual vector<string> uniqueKey() const=0;
+	virtual vector<string> implicitKey() const=0;
+	virtual vector<string> explicitKey() const=0;
 };

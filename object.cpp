@@ -11,7 +11,7 @@ Object::Object(){
 	attribute.clear();
 }
 
-string Object::operator [](const string& key){
+string Object::operator [](const string& key) const{
 	auto it=attribute.find(Field(key));
 	return it!=attribute.end()?it->value:"";
 }

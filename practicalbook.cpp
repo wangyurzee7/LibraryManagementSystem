@@ -4,17 +4,17 @@ using namespace std;
 
 #include "practicalbook.h"
 
-string PracticalBook::typeName(){
+string PracticalBook::typeName() const{
 	return "PracticalBook";
 }
 
-vector<string> PracticalBook::uniqueKey(){
+vector<string> PracticalBook::uniqueKey() const{
 	return {"No","Index"};
 }
-vector<string> PracticalBook::implicitKey(){
+vector<string> PracticalBook::implicitKey() const{
 	return {};
 }
-vector<string> PracticalBook::explicitKey(){
+vector<string> PracticalBook::explicitKey() const{
 	return {"No","Index","Status","Remarks"};
 }
 

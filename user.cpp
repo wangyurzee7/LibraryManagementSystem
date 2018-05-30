@@ -4,17 +4,17 @@ using namespace std;
 
 #include "user.h"
 
-string User::typeName(){
+string User::typeName() const{
 	return "User";
 }
 
-vector<string> User::uniqueKey(){
+vector<string> User::uniqueKey() const{
 	return {"Username"};
 }
-vector<string> User::implicitKey(){
+vector<string> User::implicitKey() const{
 	return {"Status"};
 }
-vector<string> User::explicitKey(){
+vector<string> User::explicitKey() const{
 	return {"Username","Role","Realname","School","Remarks"};
 }
 

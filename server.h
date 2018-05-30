@@ -17,7 +17,10 @@ using namespace std;
 
 #pragma once
 class Server{
+private:
+	Database* db;
 public:
+	Server(Database* ptr);
 	template<typename ObjType>
 	ErrorCode search(const User &currentUser,multiset<Field> fields,vector<ObjType> &ret,SearchStrategy strategy=completeMatching);
 	template<typename ObjType>

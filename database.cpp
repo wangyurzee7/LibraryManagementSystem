@@ -12,16 +12,16 @@ using namespace std;
 Database::Database(){
 	client=mongocxx::uri{};
 	db=client["LMS"];
-	userCollection=db["user"];
-	bookCollection=db["book"];
-	recordCollection=db["record"];
+	// userCollection=db["user"];
+	// bookCollection=db["book"];
+	// recordCollection=db["record"];
 }
 
 Database::Database(const string &dbName){
 	client=mongocxx::uri{};
 	db=client[dbName];
-	userCollection=db["user"];
-	bookCollection=db["book"];
-	recordCollection=db["record"];
+	// userCollection=db["user"];
+	// bookCollection=db["book"];
+	// recordCollection=db["record"];
 }
 

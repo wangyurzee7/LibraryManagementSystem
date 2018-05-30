@@ -34,3 +34,6 @@
 # Mongodb
 mongodb/
 runmongod.sh
+
+# Test
+test.*

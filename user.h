@@ -6,7 +6,6 @@
 
 using namespace std;
 
-
 class User:public Object{
 public:
 	Password password;
@@ -16,10 +15,10 @@ public:
 	User(const string&,const string&);
 	void enterPassword(const string&);
 	
-	virtual string typeName() override;
-	virtual vector<string> uniqueKey() override;
-	virtual vector<string> implicitKey() override;
-	virtual vector<string> explicitKey() override;
+	virtual string typeName() const override;
+	virtual vector<string> uniqueKey() const override;
+	virtual vector<string> implicitKey() const override;
+	virtual vector<string> explicitKey() const override;
 	
 	
 	

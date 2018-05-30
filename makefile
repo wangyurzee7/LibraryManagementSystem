@@ -34,7 +34,7 @@ encryptor.o: encryptor.cpp encryptor.h md5.h
 password.o: password.cpp password.h encryptor.h
 	c++ ${CFLAGS} -c $< -o $@
 
-database.o: database.cpp database.h
+database.o: database.cpp database.h user.h book.h practicalbook.h record.h object.h field.h errorcode.h
 	c++ ${CFLAGS} -c $< -o $@
 
 content.o: content.cpp content.h

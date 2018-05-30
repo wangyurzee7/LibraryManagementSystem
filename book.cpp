@@ -4,17 +4,17 @@ using namespace std;
 
 #include "book.h"
 
-string Book::typeName(){
+string Book::typeName() const{
 	return "Book";
 }
 
-vector<string> Book::uniqueKey(){
+vector<string> Book::uniqueKey() const{
 	return {"No"};
 }
-vector<string> Book::implicitKey(){
+vector<string> Book::implicitKey() const{
 	return {"Url","Status"};
 }
-vector<string> Book::explicitKey(){
+vector<string> Book::explicitKey() const{
 	return {"No","Name","Author","ISBN","Publisher","Remarks"};
 }
 
