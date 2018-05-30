@@ -31,11 +31,11 @@ private:
 	mongocxx::database db;
 	
 	bsoncxx::builder::stream::document toDocument(const Object &obj);
-	bsoncxx::builder::stream::document toDocument(const Search &obj);
+	bsoncxx::builder::stream::document toDocument(const CompleteMatchingSearch &obj);
+	bsoncxx::builder::stream::document toDocument(const FuzzyMatchingSearch &obj);
+	bsoncxx::builder::stream::document toDocument(const ReSearch &obj);
 	
-	
-	template<typename ObjType>
-	bsoncxx::builder::stream::document toDocumentForFind(ObjType &obj);
+	bsoncxx::builder::stream::document toDocumentForFind(const Object &obj);
 public:
 	Database();
 	Database(const string&);
