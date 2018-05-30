@@ -4,20 +4,20 @@
 
 using namespace std;
 
-#include "object.h"
+#include "abstractobject.h"
 
 
-Object::Object(){
+AbstractObject::AbstractObject(){
 	attribute.clear();
 }
 
-string Object::operator [](const string& key) const{
+string AbstractObject::operator [](const string& key) const{
 	auto it=attribute.find(Field(key));
 	return it!=attribute.end()?it->value:"";
 }
 
 // If key exists, overwrite it. Or create it.
-void Object::update(const Field& field){
+void AbstractObject::update(const Field& field){
 	auto it=attribute.find(field);
 	if (it!=attribute.end()){
 		attribute.erase(it); // If key exists,remove the field firstly.
@@ -26,6 +26,6 @@ void Object::update(const Field& field){
 }
 
 // The same use as the function above.
-void Object::update(const string& key,const string& value){
+void AbstractObject::update(const string& key,const string& value){
 	this->update(Field(key,value));
 }

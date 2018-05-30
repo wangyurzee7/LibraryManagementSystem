@@ -1,10 +1,12 @@
 #include <bits/stdc++.h>
 
-#include "../object/object.h"
+#include "../object/abstractobject.h"
 
 using namespace std;
 
 #pragma once
-class Search:public Object{
-	
+class Search:public AbstractObject{
+public:
+	using AbstractObject::AbstractObject;
+	virtual string typeName() const override final;
 };
