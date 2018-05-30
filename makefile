@@ -37,7 +37,7 @@ encryptor.o: object/password/encryptor.cpp object/password/encryptor.h object/pa
 password.o: object/password/password.cpp object/password/password.h object/password/encryptor.h
 	${CC} ${CFLAGS} -c $< -o $@
 
-database.o: database.cpp database.h object/user.h object/book.h object/practicalbook.h object/record.h object/object.h object/field.h object/abstractobject.h object/password/password.h search/search.h search/completematching.h search/fuzzymatching.h search/re.h errorcode.h
+database.o: database.cpp database.h object/user.h object/book.h object/practicalbook.h object/record.h object/object.h object/field.h object/abstractobject.h object/password/password.h object/search.h errorcode.h
 	${CC} ${CFLAGS} -c $< -o $@
 
 content.o: content/content.cpp content/content.h
@@ -46,10 +46,10 @@ content.o: content/content.cpp content/content.h
 txtcontent.o: content/txtcontent.cpp content/txtcontent.h content/content.h
 	${CC} ${CFLAGS} -c $< -o $@
 
-search.o: search/search.cpp object/abstractobject.h search/search.h
+search.o: object/search.cpp object/abstractobject.h object/search.h
 	${CC} ${CFLAGS} -c $< -o $@
 
-server.o: server.cpp server.h object/field.h object/object.h database.h object/password/password.h object/user.h object/book.h object/practicalbook.h object/record.h object/abstractobject.h content/content.h content/txtcontent.h search/search.h search/completematching.h search/fuzzymatching.h search/re.h errorcode.h
+server.o: server.cpp server.h object/field.h object/object.h database.h object/password/password.h object/user.h object/book.h object/practicalbook.h object/record.h object/abstractobject.h content/content.h content/txtcontent.h object/search.h errorcode.h
 	${CC} ${CFLAGS} -c $< -o $@
 
 clean:

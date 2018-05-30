@@ -6,10 +6,7 @@
 #include "object/practicalbook.h"
 #include "object/record.h"
 
-#include "search/search.h"
-#include "search/completematching.h"
-#include "search/fuzzymatching.h"
-#include "search/re.h"
+#include "object/search.h"
 
 #include "content/content.h"
 #include "content/txtcontent.h"

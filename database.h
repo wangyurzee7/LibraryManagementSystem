@@ -9,10 +9,7 @@
 #include "object/practicalbook.h"
 #include "object/record.h"
 
-#include "search/search.h"
-#include "search/completematching.h"
-#include "search/fuzzymatching.h"
-#include "search/re.h"
+#include "object/search.h"
 
 #include "errorcode.h"
 // #include "searchstrategy.h"
@@ -32,6 +29,13 @@ private:
 	// mongocxx::instance inst;
 	mongocxx::client client;
 	mongocxx::database db;
+	
+	bsoncxx::builder::stream::document toDocument(const Object &obj);
+	bsoncxx::builder::stream::document toDocument(const Search &obj);
+	
+	
+	template<typename ObjType>
+	bsoncxx::builder::stream::document toDocumentForFind(ObjType &obj);
 public:
 	Database();
 	Database(const string&);
