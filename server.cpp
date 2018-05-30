@@ -195,10 +195,71 @@ ErrorCode Server::returnBook(const User& currentUser,const PracticalBook& book){
 	}));
 }
 
-/*
-ErrorCode acceptRequest(const User& currentUser,const Record& record);
-ErrorCode rejectRequest(const User& currentUser,const Record& record);
 
+ErrorCode Server::acceptRequest(const User& currentUser,const Record& record){
+	Record res=record;
+	if (!db->findOne(res)) return requestNotFound;
+	if (res["Type"]!="Borrowing"&&res["Type"]!="Returning") return requestNotFound;
+	
+	if (res["Status"]!="Pending") return requestAlreadyProcessed;
+	
+	bool flag=res["Type"]=="Borrowing";
+	
+	if (!db->objectExist(PracticalBook({
+		Field("No",res["BookNo"]),
+		Field("Index",res["BookIndex"]),
+		Field("Status",flag?"Accessible":"Borrowed")
+	})))
+		return flag?bookInaccessible:bookNotBorrowed;
+	
+	ErrorCode ret=db->update(PracticalBook({
+		Field("No",res["BookNo"]),
+		Field("Index",res["BookIndex"]),
+		Field("Status",flag?"Borrowed":"Accessible")
+	}));
+	if (ret!=0) return ret;
+	if (!flag){
+		vector<Record> recs;
+		ret=db->search<Record>(CompleteMatchingSearch({
+			Field("Username",res["Username"]),
+			Field("BookNo",res["BookNo"]),
+			Field("BookIndex",res["BookIndex"]),
+			Field("Type","Borrowing"),
+			Field("Status","Accepted")
+		}),recs);
+		if (ret!=0) return ret;
+		if (int(recs.size())!=1) return unknownError;
+		string tmpId=(*recs.begin())["Id"];
+		ret=db->update(Record(set<Field>({
+			Field("Id",tmpId),
+			Field("Status","Returned")
+		})));
+		if (ret!=0) return ret;
+	}
+	return db->update(Record(set<Field>({
+		Field("Id",res["Id"]),
+		Field("Status","Accepted"),
+		Field("Remarks","Processing Time : "+getTime())
+	})));
+}
+
+ErrorCode Server::rejectRequest(const User& currentUser,const Record& record){
+	Record res=record;
+	if (!db->findOne(res)) return requestNotFound;
+	if (res["Type"]!="Borrowing"&&res["Type"]!="Returning") return requestNotFound;
+	
+	if (res["Status"]!="Pending") return requestAlreadyProcessed;
+	
+	bool flag=res["Type"]=="Borrowing";
+	
+	return db->update(Record(set<Field>({
+		Field("Id",res["Id"]),
+		Field("Status","Rejected"),
+		Field("Remarks","Processing Time : "+getTime())
+	})));
+}
+
+/*
 template<typename ObjType>
 ErrorCode freeze(const User &currentUser,const ObjType &obj);
 template<typename ObjType>

@@ -23,6 +23,7 @@ enum ErrorCode{
 	
 	requestAlreadySubmitted,
 	requestAlreadyProcessed,
+	requestNotFound,
 	
 	objectNotFrozen,
 	objectAlreadyFrozen,

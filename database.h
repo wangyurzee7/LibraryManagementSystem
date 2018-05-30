@@ -44,6 +44,7 @@ public:
 	bool isRoot(const User& user);
 	bool findOne(Object& obj); // Find according to uniqueKey
 	bool objectExist(const Object& obj);
+	
 	string newRecordId();
 	ErrorCode add(const Object& object);
 	ErrorCode update(const Object& object);

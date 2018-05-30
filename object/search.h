@@ -12,16 +12,22 @@ class Search:public AbstractObject<multiset<Field>>{
 public:
 	using AbstractObject::AbstractObject;
 	virtual string typeName() const override final;
-	virtual string strategyName() const=0;
+	// virtual string strategyName() const=0;
 	virtual FormatInfo invalidFields() const;
 };
 
 class CompleteMatchingSearch:public Search{
+public:
+	using Search::Search;
 	// virtual string strategyName() const override;
 };
 class FuzzyMatchingSearch:public Search{
+public:
+	using Search::Search;
 	// virtual string strategyName() const override;
 };
 class ReSearch:public Search{
+public:
+	using Search::Search;
 	// virtual string strategyName() const override;
 };
