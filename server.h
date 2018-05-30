@@ -1,17 +1,23 @@
 #include <bits/stdc++.h>
 
-#include "object.h"
-#include "user.h"
-#include "book.h"
-#include "practicalbook.h"
-#include "record.h"
+#include "object/object.h"
+#include "object/user.h"
+#include "object/book.h"
+#include "object/practicalbook.h"
+#include "object/record.h"
+
+#include "search/search.h"
+#include "search/completematching.h"
+#include "search/fuzzymatching.h"
+#include "search/re.h"
+
+#include "content/content.h"
+#include "content/txtcontent.h"
+
 #include "database.h"
 
 #include "errorcode.h"
-#include "searchstrategy.h"
 
-#include "content.h"
-#include "txtcontent.h"
 
 using namespace std;
 

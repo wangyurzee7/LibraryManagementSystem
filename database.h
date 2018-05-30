@@ -3,12 +3,19 @@
 #include <bits/stdc++.h>
 
 
-#include "user.h"
-#include "book.h"
-#include "practicalbook.h"
-#include "record.h"
+#include "object/object.h"
+#include "object/user.h"
+#include "object/book.h"
+#include "object/practicalbook.h"
+#include "object/record.h"
+
+#include "search/search.h"
+#include "search/completematching.h"
+#include "search/fuzzymatching.h"
+#include "search/re.h"
+
 #include "errorcode.h"
-#include "searchstrategy.h"
+// #include "searchstrategy.h"
 
 
 using namespace std;
@@ -35,6 +42,6 @@ public:
 	ErrorCode update(const Object& object);
 	ErrorCode remove(const Object& object);
 	template<typename ObjType>
-	ErrorCode search(multiset<Field> fields,vector<ObjType> &ret,SearchStrategy strategy);
+	ErrorCode search(multiset<Field> fields,vector<ObjType> &ret,const Search& key);
 };
 

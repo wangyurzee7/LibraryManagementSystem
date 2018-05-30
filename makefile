@@ -7,41 +7,44 @@ CFLAGS=-std=c++11 -I/usr/local/include/mongocxx/v_noabi -I/usr/local/include/bso
 # Build targets
 all: field.o object.o database.o md5.o encryptor.o password.o user.o book.o practicalbook.o record.o content.o txtcontent.o server.o
 
-field.o: field.cpp field.h
+field.o: object/field.cpp object/field.h
 	c++ ${CFLAGS} -c $< -o $@
 
-object.o: object.cpp object.h field.h
+object.o: object/object.cpp object/object.h object/field.h
 	c++ ${CFLAGS} -c $< -o $@
 
-user.o: user.cpp user.h object.h field.h
+user.o: object/user.cpp object/user.h object/object.h object/field.h
 	c++ ${CFLAGS} -c $< -o $@
 	
-book.o: book.cpp book.h object.h field.h
+book.o: object/book.cpp object/book.h object/object.h object/field.h
 	c++ ${CFLAGS} -c $< -o $@
 
-practicalbook.o: practicalbook.cpp practicalbook.h object.h field.h
+practicalbook.o: object/practicalbook.cpp object/practicalbook.h object/object.h object/field.h
 	c++ ${CFLAGS} -c $< -o $@
 
-record.o: record.cpp record.h object.h field.h
+record.o: object/record.cpp object/record.h object/object.h object/field.h
 	c++ ${CFLAGS} -c $< -o $@
 
-md5.o: md5.cpp md5.h
+md5.o: object/password/md5.cpp object/password/md5.h
 	c++ ${CFLAGS} -c $< -o $@
 
-encryptor.o: encryptor.cpp encryptor.h md5.h
+encryptor.o: object/password/encryptor.cpp object/password/encryptor.h object/password/md5.h
 	c++ ${CFLAGS} -c $< -o $@
 
-password.o: password.cpp password.h encryptor.h
+password.o: object/password/password.cpp object/password/password.h object/password/encryptor.h
 	c++ ${CFLAGS} -c $< -o $@
 
-database.o: database.cpp database.h user.h book.h practicalbook.h record.h object.h field.h errorcode.h
+database.o: database.cpp database.h object/user.h object/book.h object/practicalbook.h object/record.h object/object.h object/field.h object/password/password.h errorcode.h
 	c++ ${CFLAGS} -c $< -o $@
 
-content.o: content.cpp content.h
+content.o: content/content.cpp content/content.h
 	c++ ${CFLAGS} -c $< -o $@
 
-txtcontent.o: txtcontent.cpp txtcontent.h content.h
+txtcontent.o: content/txtcontent.cpp content/txtcontent.h content/content.h
 	c++ ${CFLAGS} -c $< -o $@
 
-server.o: server.cpp server.h field.h object.h database.h password.h user.h book.h practicalbook.h record.h content.h txtcontent.h errorcode.h searchstrategy.h
+server.o: server.cpp server.h object/field.h object/object.h database.h object/password/password.h object/user.h object/book.h object/practicalbook.h object/record.h content/content.h content/txtcontent.h errorcode.h
 	c++ ${CFLAGS} -c $< -o $@
+
+clean:
+	rm *.o

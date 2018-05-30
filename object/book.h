@@ -2,7 +2,6 @@
 #include <bits/stdc++.h>
 
 #include "object.h"
-#include "password.h"
 
 using namespace std;
 
