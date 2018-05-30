@@ -120,8 +120,12 @@ ErrorCode Server::remove(const User &currentUser,const ObjType &obj){
 }
 
 
+ErrorCode Server::userRegister(const User& user){
+	
+}
+
+
 /*
-ErrorCode userRegister(const User& user);
 ErrorCode userLogin(const User& user);
 
 ErrorCode borrowBook(const User& currentUser,const PracticalBook& book);
