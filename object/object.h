@@ -7,7 +7,7 @@
 using namespace std;
 
 
-class Object:public AbstractObject{
+class Object:public AbstractObject<set<Field>>{
 public:
 	using AbstractObject::AbstractObject;
 	virtual vector<string> uniqueKey() const=0;
