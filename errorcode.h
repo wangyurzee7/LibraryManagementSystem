@@ -8,11 +8,12 @@ enum ErrorCode{
 	permissionDenied,
 	needRoot,
 	
+	objectExists,
 	userExists,
-	InvalidInfo,
+	invalidInfo,
+	invalidKey,
 	
-	noSuchUser,
-	wrongPassowrd,
+	loginFailed,
 	loginAgain,
 	
 	bookAlreadyBorrowed,

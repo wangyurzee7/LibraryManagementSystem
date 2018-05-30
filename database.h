@@ -35,7 +35,7 @@ private:
 public:
 	Database();
 	Database(const string&);
-	bool userExist(const User& user);
+	bool userExist(const User& user); // check "Role" at the same time
 	bool isAdmin(const User& user);
 	bool isRoot(const User& user);
 	ErrorCode add(const Object& object);
