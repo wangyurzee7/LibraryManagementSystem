@@ -42,6 +42,6 @@ public:
 	ErrorCode update(const Object& object);
 	ErrorCode remove(const Object& object);
 	template<typename ObjType>
-	ErrorCode search(multiset<Field> fields,vector<ObjType> &ret,const Search& key);
+	ErrorCode search(const Search& key,vector<ObjType> &ret);
 };
 

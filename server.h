@@ -28,9 +28,7 @@ private:
 public:
 	Server(Database* ptr);
 	template<typename ObjType>
-	ErrorCode search(const User &currentUser,multiset<Field> fields,vector<ObjType> &ret,SearchStrategy strategy=completeMatching);
-	template<typename ObjType>
-	ErrorCode search(const User &currentUser,Field field,vector<ObjType> &ret,SearchStrategy strategy=completeMatching);
+	ErrorCode search(const User &currentUser,const Search& key,vector<ObjType> &ret);
 
 	ErrorCode searchInContent(const User &currentUser,const Book &book,const string &keyWord);
 	

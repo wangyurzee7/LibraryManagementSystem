@@ -8,13 +8,13 @@ using namespace std;
 Server::Server(Database* ptr):db(ptr){}
 
 template<typename ObjType>
-ErrorCode Server::search(const User &currentUser,multiset<Field> fields,vector<ObjType> &ret,SearchStrategy strategy){
+ErrorCode Server::search(const User &currentUser,const Search& key,vector<ObjType> &ret){
 	if (!db->userExist(currentUser)) return loginAgain;
 	
 	bool authority=0;
 	switch (currentUser.typeName()){
 		case "User":
-			authority=db->isAdmin(currentUser)||currentUser["username"]==fields.find(Field("username"))->value;
+			authority=db->isAdmin(currentUser)||currentUser["username"]==key["username"];
 		case "Book":
 			authority=1;
 		case "ParcticalBook":
@@ -25,18 +25,13 @@ ErrorCode Server::search(const User &currentUser,multiset<Field> fields,vector<O
 	
 	if (authority){
 		ret.clear();
-		return db->search(fields,ret,strategy);
+		return db->search(key,ret);
 	}
 	else{
 		return permissionDenied;
 	}
 }
 
-template<typename ObjType>
-ErrorCode Server::search(const User &currentUser,Field field,vector<ObjType> &ret,SearchStrategy strategy){
-	multiset<Field> fields(field);
-	return search(currentUser,fields,ret,strategy);
-}
 
 
 template<typename ObjType>
