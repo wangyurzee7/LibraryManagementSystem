@@ -19,3 +19,7 @@ FormatInfo Search::invalidFields() const{
 	}
 	return ret;
 }
+
+multiset<Field> Search::fields() const{
+	return attribute;
+}

@@ -14,14 +14,10 @@ public:
 	virtual string typeName() const override final;
 	// virtual string strategyName() const=0;
 	virtual FormatInfo invalidFields() const;
+	virtual multiset<Field> fields() const;
 };
 
 class CompleteMatchingSearch:public Search{
-public:
-	using Search::Search;
-	// virtual string strategyName() const override;
-};
-class FuzzyMatchingSearch:public Search{
 public:
 	using Search::Search;
 	// virtual string strategyName() const override;

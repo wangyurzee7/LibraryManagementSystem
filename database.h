@@ -23,22 +23,26 @@ using namespace std;
 #include <mongocxx/client.hpp>
 #include <mongocxx/instance.hpp>
 
+using bsoncxx::builder::stream::close_document;
+using bsoncxx::builder::stream::open_document;
+using bsoncxx::builder::stream::document;
+
 
 class Database{
 private:
 	// mongocxx::instance inst;
+	string dbName;
 	mongocxx::client client;
 	mongocxx::database db;
 	
-	bsoncxx::builder::stream::document toDocument(const Object &obj);
-	bsoncxx::builder::stream::document toDocument(const CompleteMatchingSearch &obj);
-	bsoncxx::builder::stream::document toDocument(const FuzzyMatchingSearch &obj);
-	bsoncxx::builder::stream::document toDocument(const ReSearch &obj);
+	document toDocument(const Object &obj);
+	document toDocument(const CompleteMatchingSearch &obj);
+	// bsoncxx::builder::stream::document toDocument(const FuzzyMatchingSearch &obj);
+	document toDocument(const ReSearch &obj);
 	
-	bsoncxx::builder::stream::document toDocumentForFind(const Object &obj);
+	document toDocumentForFind(const Object &obj);
 public:
-	Database();
-	Database(const string&);
+	Database(const string& _name="LMS");
 	bool userExist(const User& user); // check "Role" at the same time
 	bool isAdmin(const User& user);
 	bool isRoot(const User& user);
