@@ -1,5 +1,6 @@
 // This h is NOT written by Yazid Wong and his group.
 // Source: https://blog.csdn.net/flydream0/article/details/7045429
+// QwQ
 
 #ifndef MD5_H
 #define MD5_H
