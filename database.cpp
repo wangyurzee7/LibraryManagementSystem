@@ -13,9 +13,8 @@ Database::Database(const string& _name):dbName(_name){
 	client=mongocxx::uri{};
 	db=client[_name];
 	
-	// userCollection=db["User"];
-	// bookCollection=db["Book"];
-	// recordCollection=db["Record"];
+	if (!objectExist(User({Field("Role","Root")})))
+		add(User("root","root"));
 }
 
 document toDocument(const Object &obj){
@@ -101,8 +100,25 @@ bool Database::objectExist(const Object& obj){
 	return 0;
 }
 
+string Database::newRecordId(){
+	document doc;
+	string ret;
+	auto info=db["LastRecordId"].find_one({});
+	if (info){
+		string _last=string(info->view()["LastRecordId"].get_utf8().value);
+		ret=to_string(stoi(_last)+1);
+		doc<<"LastRecordId"<<ret;
+		db["LastRecordId"].update_one({},doc.view());
+	}
+	else{
+		ret="1";
+		doc<<"LastRecordId"<<ret;
+		db["LastRecordId"].insert_one(doc.view());
+	}
+	return ret;
+}
+
 /*
-string Database::newRecordId();
 ErrorCode Database::add(const Object& object);
 ErrorCode Database::update(const Object& object);
 ErrorCode Database::modifyPassword(const User& user,const Password& newPwd);
