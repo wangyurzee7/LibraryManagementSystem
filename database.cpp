@@ -118,12 +118,34 @@ string Database::newRecordId(){
 	return ret;
 }
 
-/*
-ErrorCode Database::add(const Object& object);
-ErrorCode Database::update(const Object& object);
-ErrorCode Database::modifyPassword(const User& user,const Password& newPwd);
-ErrorCode Database::remove(const Object& object);
-template<typename ObjType>
-ErrorCode Database::search(const Search& key,vector<ObjType> &ret);
+ErrorCode Database::modifyPassword(const User& user,const Password& newPwd){
+	auto collection=db["User"];
+	document doc=toDocumentForFind(user);
+	doc<<"Status"<<"Accessible";
+	auto info=collection.find_one(doc.view());
+	if (info){
+		if (string(info->view()["Password"].get_utf8().value)!=user.password.toString())
+			return wrongPassword;
+		document newDoc;
+		newDoc<<"$set"<<open_document<<"Password"<<newPwd.toString()<<close_document;
+		collection.update_one(doc.view(),newDoc.view());
+		return noError;
+	}
+	else return userNotFound;
+}
 
-*/
+
+ErrorCode Database::add(const Object& object){
+	
+}
+ErrorCode Database::update(const Object& object){
+	
+}
+ErrorCode Database::remove(const Object& object){
+	
+}
+
+template<typename ObjType>
+ErrorCode Database::search(const Search& key,vector<ObjType> &ret){
+	
+}
