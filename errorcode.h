@@ -26,11 +26,12 @@ enum ErrorCode{
 	requestNotFound,
 	
 	objectNotFrozen,
-	objectAlreadyFrozen,
+	objectNotAccessible,
 	
-	previewFileDoesNotFound,
+	bookContentMissing,
+	unknownContentSuffix,
 	
-	notYetOpen,
+	guGuGu,
 	
 	unknownError
 };

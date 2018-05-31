@@ -22,15 +22,17 @@ ErrorCode Server::search(const User &currentUser,const Search& key,vector<ObjTyp
 	if (!db->userExist(currentUser)) return loginAgain;
 	
 	bool authority=0;
-	switch (currentUser.typeName()){
-		case "User":
-			authority=db->isAdmin(currentUser)||currentUser["username"]==key["username"];
-		case "Book":
-			authority=1;
-		case "ParcticalBook":
-			authority=1;
-		case "Record":
-			authority=db->isAdmin(currentUser)||currentUser["username"]==key["username"];
+	if (currentUser.typeName()=="User"){
+		authority=db->isAdmin(currentUser)||currentUser["username"]==key["username"];
+	}
+	else if (currentUser.typeName()=="Book"){
+		authority=1;
+	}
+	else if (currentUser.typeName()=="ParcticalBook"){
+		authority=1;
+	}
+	else if (currentUser.typeName()=="Record"){
+		authority=db->isAdmin(currentUser)||currentUser["username"]==key["username"];
 	}
 	
 	if (authority){
@@ -45,31 +47,36 @@ ErrorCode Server::search(const User &currentUser,const Search& key,vector<ObjTyp
 
 
 template<typename ObjType>
-ErrorCode Server::add(const User &currentUser,const ObjType &obj){
+ErrorCode Server::add(const User &currentUser,ObjType obj){
 	if (!obj.invalidFields().empty()) return invalidInfo;
 	
 	if (!db->userExist(currentUser)) return loginAgain;
 	
 	bool authority=0;
-	switch (currentUser.typeName()){
-		case "User":
-			switch(obj["Role"]){
-				case "Reader":
-					authority=db->isAdmin(currentUser);
-				case "Admin":
-					authority=db->isRoot(currentUser);
-				case "Root":
-					authority=0;
-			}
-		case "Book":
+	if (currentUser.typeName()=="User"){
+		string role=obj["Role"];
+		if (role=="Reader"){
 			authority=db->isAdmin(currentUser);
-		case "ParcticalBook":
-			authority=db->isAdmin(currentUser);
-		case "Record":
+		}
+		else if (role=="Admin"){
+			authority=db->isRoot(currentUser);
+		}
+		else if (role=="Root"){
 			authority=0;
+		}
+	}
+	else if (currentUser.typeName()=="Book"){
+		authority=db->isAdmin(currentUser);
+	}
+	else if (currentUser.typeName()=="ParcticalBook"){
+		authority=db->isAdmin(currentUser);
+	}
+	else if (currentUser.typeName()=="Record"){
+		authority=0;
 	}
 	
 	if (authority){
+		obj.update("Status","Accessible");
 		return db->add(obj);
 	}
 	else{
@@ -80,30 +87,37 @@ ErrorCode Server::add(const User &currentUser,const ObjType &obj){
 
 
 template<typename ObjType>
-ErrorCode Server::update(const User &currentUser,const ObjType &obj){
+ErrorCode Server::update(const User &currentUser,ObjType obj){
 	if (!obj.invalidFields().empty()) return invalidInfo;
 	
 	if (!db->userExist(currentUser)) return loginAgain;
 	
 	bool authority=0;
-	switch (currentUser.typeName()){
-		case "User":
-			if (currentUser["username"]==obj["username"])
-				authority=1;
-			else switch(obj["Role"]){
-				case "Reader":
-					authority=db->isAdmin(currentUser);
-				case "Admin":
-					authority=db->isRoot(currentUser);
-				case "Root":
-					authority=0;
+	if (obj["Status"]!="") authority=db->isRoot(currentUser);
+	else if (currentUser.typeName()=="User"){
+		if (currentUser["username"]==obj["username"])
+			authority=1;
+		else{
+			string role=obj["Role"];
+			if (role=="Reader"){
+				authority=db->isAdmin(currentUser);
 			}
-		case "Book":
-			authority=db->isAdmin(currentUser);
-		case "ParcticalBook":
-			authority=db->isAdmin(currentUser);
-		case "Record":
-			authority=db->isRoot(currentUser);
+			else if (role=="Admin"){
+				authority=db->isRoot(currentUser);
+			}
+			else if (role=="Root"){
+				authority=0;
+			}
+		}
+	}
+	if (currentUser.typeName()=="Book"){
+		authority=db->isAdmin(currentUser);
+	}
+	if (currentUser.typeName()=="ParcticalBook"){
+		authority=db->isAdmin(currentUser);
+	}
+	if (currentUser.typeName()=="Record"){
+		authority=db->isRoot(currentUser);
 	}
 	
 	if (authority){
@@ -129,10 +143,12 @@ ErrorCode Server::remove(const User &currentUser,const ObjType &obj){
 }
 
 
-ErrorCode Server::userRegister(const User& user){
+ErrorCode Server::userRegister(User user){
 	if (!user.invalidFields().empty()) return invalidInfo;
 	
 	if (user["Role"]!="Reader") return permissionDenied;
+	
+	user.update("Status","Accessible");
 	
 	return db->add(user);
 }
@@ -259,20 +275,127 @@ ErrorCode Server::rejectRequest(const User& currentUser,const Record& record){
 	})));
 }
 
-/*
+
 template<typename ObjType>
-ErrorCode freeze(const User &currentUser,const ObjType &obj);
+ErrorCode Server::freeze(const User &currentUser,ObjType obj){
+	if (!db->findOne(obj)) return objectNotFound;
+	if (obj["Status"]!="Accessible") return objectNotAccessible;
+	
+	bool authority=0;
+	if (currentUser.typeName()=="User"){
+		string role=obj["Role"];
+		if (role=="Reader"){
+			authority=db->isAdmin(currentUser);
+		}
+		else if (role=="Admin"){
+			authority=db->isRoot(currentUser);
+		}
+		else if (role=="Root"){
+			authority=0;
+		}
+	}
+	else if (currentUser.typeName()=="Book"){
+		authority=db->isAdmin(currentUser);
+	}
+	else if (currentUser.typeName()=="ParcticalBook"){
+		authority=db->isAdmin(currentUser);
+	}
+	else if (currentUser.typeName()=="Record"){
+		authority=0;
+	}
+	
+	if (authority){
+		obj.update("Status","Frozen");
+		return db->update(obj);
+	}
+	else{
+		return permissionDenied;
+	}
+}
+
 template<typename ObjType>
-ErrorCode unfreeze(const User &currentUser,const ObjType &obj);
+ErrorCode Server::unfreeze(const User &currentUser,ObjType obj){
+	if (!db->findOne(obj)) return objectNotFound;
+	if (obj["Status"]!="Frozen") return objectNotAccessible;
+	
+	bool authority=0;
+	if (currentUser.typeName()=="User"){
+		string role=obj["Role"];
+		if (role=="Reader"){
+			authority=db->isAdmin(currentUser);
+		}
+		else if (role=="Admin"){
+			authority=db->isRoot(currentUser);
+		}
+		else if (role=="Root"){
+			authority=0;
+		}
+	}
+	else if (currentUser.typeName()=="Book"){
+		authority=db->isAdmin(currentUser);
+	}
+	else if (currentUser.typeName()=="ParcticalBook"){
+		authority=db->isAdmin(currentUser);
+	}
+	else if (currentUser.typeName()=="Record"){
+		authority=0;
+	}
+	
+	if (authority){
+		obj.update("Status","Accessible");
+		return db->update(obj);
+	}
+	else{
+		return permissionDenied;
+	}
+}
 
-ErrorCode browseBook(const User& currentUser,const PracticalBook& book);
 
-ErrorCode previewBookContent(const User& currentUser,const PracticalBook& book,Content &ret);
 
-*/
+ErrorCode Server::browseBook(const User& currentUser,Book& book){
+	if (!db->findOne(book)) return bookNotFound;
+	
+	if (book["Status"]!="Accessible") return bookInaccessible;
+	
+	return db->update(Record({
+		Field("Id",db->newRecordId()),
+		Field("Username",currentUser["Username"]),
+		Field("BookNo",book["No"]),
+		Field("Status","Meowed"),
+		Field("Time",getTime()),
+		Field("Type","Browsing")
+	}));
+}
+
+ErrorCode Server::previewBookContent(const User& currentUser,Book book,Content *ret){
+	if (!db->findOne(book)) return bookNotFound;
+	
+	if (book["Status"]!="Accessible") return bookInaccessible;
+	
+	db->update(Record({
+		Field("Id",db->newRecordId()),
+		Field("Username",currentUser["Username"]),
+		Field("BookNo",book["No"]),
+		Field("Status","Meowed"),
+		Field("Time",getTime()),
+		Field("Type","Browsing")
+	}));
+	
+	string url=book["Url"];
+	string suffix=url.substr(url.find_last_of(".")+1);
+	if (suffix==url) suffix="";
+	bool found=0;
+	if (suffix=="txt"){
+		ret=new TxtContent(url,found);
+	}
+	else{
+		return unknownContentSuffix;
+	}
+	return found?noError:bookContentMissing;
+}
 
 
 //==============Gu Gu Gu!====================
 ErrorCode searchInContent(const User &currentUser,const Book &book,const string &keyWord){
-	return notYetOpen;
+	return guGuGu;
 }

@@ -6,5 +6,11 @@ using namespace std;
 
 #pragma once
 class TxtContent:public Content{
-	
+private:
+	string content;
+public:
+	TxtContent();
+	TxtContent(const string &_content);
+	TxtContent(const string &url,bool &found);
+	virtual string show() const override;
 };

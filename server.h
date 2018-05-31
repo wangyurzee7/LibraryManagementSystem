@@ -31,14 +31,14 @@ public:
 	ErrorCode searchInContent(const User &currentUser,const Book &book,const string &keyWord);
 	
 	template<typename ObjType>
-	ErrorCode add(const User &currentUser,const ObjType &obj);
+	ErrorCode add(const User &currentUser,ObjType obj);
 	
 	template<typename ObjType>
-	ErrorCode update(const User &currentUser,const ObjType &obj);
+	ErrorCode update(const User &currentUser,ObjType obj);
 	template<typename ObjType>
 	ErrorCode remove(const User &currentUser,const ObjType &obj);
 	
-	ErrorCode userRegister(const User& user);
+	ErrorCode userRegister(User user);
 	ErrorCode userLogin(const User& user);
 
 	ErrorCode borrowBook(const User& currentUser,const PracticalBook& book);
@@ -52,11 +52,11 @@ public:
 	
 	// Only for User/Book/PracticalBook
 	template<typename ObjType>
-	ErrorCode freeze(const User &currentUser,const ObjType &obj);
+	ErrorCode freeze(const User &currentUser,ObjType obj);
 	template<typename ObjType>
-	ErrorCode unfreeze(const User &currentUser,const ObjType &obj);
+	ErrorCode unfreeze(const User &currentUser,ObjType obj);
 	
-	ErrorCode browseBook(const User& currentUser,const PracticalBook& book);
+	ErrorCode browseBook(const User& currentUser,Book& book);
 	
-	ErrorCode previewBookContent(const User& currentUser,const PracticalBook& book,Content &ret);
+	ErrorCode previewBookContent(const User& currentUser,Book book,Content *ret);
 };
