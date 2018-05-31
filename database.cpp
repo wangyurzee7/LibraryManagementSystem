@@ -52,6 +52,7 @@ bool objectExist(const Object& obj);
 string newRecordId();
 ErrorCode add(const Object& object);
 ErrorCode update(const Object& object);
+ErrorCode modifyPassword(const User& user,const Password& newPwd);
 ErrorCode remove(const Object& object);
 template<typename ObjType>
 ErrorCode search(const Search& key,vector<ObjType> &ret);

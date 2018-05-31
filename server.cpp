@@ -167,7 +167,7 @@ ErrorCode Server::userLogin(User user){
 	
 	return noError;
 }
-/*
+
 ErrorCode Server::modifyPassword(User user,Password newPwd){
 	if (!db->findOne(user)) return userNotFound;
 	if (!db->userExist(user)) return wrongPassword;
@@ -175,7 +175,7 @@ ErrorCode Server::modifyPassword(User user,Password newPwd){
 	
 	return db->modifyPassword(user,newPwd);
 }
-*/
+
 
 ErrorCode Server::borrowBook(const User& currentUser,const PracticalBook& book){
 	PracticalBook res=book;

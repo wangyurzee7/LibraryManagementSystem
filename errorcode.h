@@ -4,6 +4,7 @@ enum ErrorCode{
 	
 	objectNotFound,
 	bookNotFound,
+	userNotFound,
 	typeError,
 	
 	permissionDenied,

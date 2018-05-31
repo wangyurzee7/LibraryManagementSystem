@@ -48,10 +48,12 @@ public:
 	bool isRoot(const User& user);
 	bool findOne(Object& obj); // Find according to uniqueKey
 	bool objectExist(const Object& obj);
+	// Functions above ensures that objects are not Frozen.
 	
 	string newRecordId();
 	ErrorCode add(const Object& object);
 	ErrorCode update(const Object& object);
+	ErrorCode modifyPassword(const User& user,const Password& newPwd);
 	ErrorCode remove(const Object& object);
 	template<typename ObjType>
 	ErrorCode search(const Search& key,vector<ObjType> &ret);
