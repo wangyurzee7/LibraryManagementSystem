@@ -13,9 +13,9 @@ Database::Database(const string& _name):dbName(_name){
 	client=mongocxx::uri{};
 	db=client[_name];
 	
-	// userCollection=db["user"];
-	// bookCollection=db["book"];
-	// recordCollection=db["record"];
+	// userCollection=db["User"];
+	// bookCollection=db["Book"];
+	// recordCollection=db["Record"];
 }
 
 document toDocument(const Object &obj){
@@ -41,20 +41,54 @@ document toDocumentForFind(const Object &obj){
 	return doc;
 }
 
+
+// check "Role" at the same time
+bool Database::userExist(const User& user){
+	auto collection=db["User"];
+	document doc=toDocumentForFind(user);
+	doc<<"Password"<<user.password.toString()<<"Status"<<"Accessible"<<"Role"<<user["Role"];
+	auto cursor=collection.find(doc.view());
+	return cursor.begin()!=cursor.end();
+}
+
+bool Database::isAdmin(const User& user){
+	auto collection=db["User"];
+	document doc=toDocumentForFind(user);
+	doc<<"Password"<<user.password.toString()<<"Status"<<"Accessible";
+	auto cursor=collection.find(doc.view());
+	if (cursor.begin()!=cursor.end()){
+		string role((*cursor.begin())["Role"].get_utf8().value);
+		if (role=="Admin"||role=="Root") return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
+bool Database::isRoot(const User& user){
+	auto collection=db["User"];
+	document doc=toDocumentForFind(user);
+	doc<<"Password"<<user.password.toString()<<"Status"<<"Accessible";
+	auto cursor=collection.find(doc.view());
+	if (cursor.begin()!=cursor.end()){
+		string role((*cursor.begin())["Role"].get_utf8().value);
+		if (role=="Root") return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
 /*
+bool Database::findOne(Object& obj); // Find according to uniqueKey
+bool Database::objectExist(const Object& obj);
 
-bool userExist(const User& user); // check "Role" at the same time
-bool isAdmin(const User& user);
-bool isRoot(const User& user);
-bool findOne(Object& obj); // Find according to uniqueKey
-bool objectExist(const Object& obj);
-
-string newRecordId();
-ErrorCode add(const Object& object);
-ErrorCode update(const Object& object);
-ErrorCode modifyPassword(const User& user,const Password& newPwd);
-ErrorCode remove(const Object& object);
+string Database::newRecordId();
+ErrorCode Database::add(const Object& object);
+ErrorCode Database::update(const Object& object);
+ErrorCode Database::modifyPassword(const User& user,const Password& newPwd);
+ErrorCode Database::remove(const Object& object);
 template<typename ObjType>
-ErrorCode search(const Search& key,vector<ObjType> &ret);
+ErrorCode Database::search(const Search& key,vector<ObjType> &ret);
 
 */

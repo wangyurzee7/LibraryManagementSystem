@@ -11,7 +11,7 @@ class Password{
 public:
 	Password();
 	Password(const string&);
-	bool check(const string&);
+	string toString() const; // Caution!! (Don't XJB use it!)
 	friend istream& operator >>(istream&,Password&);
 	friend ostream& operator <<(istream&,const Password&);
 };

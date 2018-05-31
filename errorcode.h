@@ -36,5 +36,6 @@ enum ErrorCode{
 	
 	guGuGu,
 	
+	databaseError,
 	unknownError
 };
