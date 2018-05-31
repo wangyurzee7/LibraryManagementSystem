@@ -20,8 +20,10 @@ Database::Database(const string& _name):dbName(_name){
 
 document toDocument(const Object &obj){
 	document doc;
-	for (auto key:obj.explicitKey()) doc<<key<<obj[key];
-	for (auto key:obj.implicitKey()) doc<<key<<obj[key];
+	for (int k=0;k<2;++k)for (auto key:(k?obj.explicitKey():obj.implicitKey())){
+		if (obj[key]!="")
+			doc<<key<<obj[key];
+	}
 	return doc;
 }
 document toDocument(const CompleteMatchingSearch &obj){
@@ -47,42 +49,59 @@ bool Database::userExist(const User& user){
 	auto collection=db["User"];
 	document doc=toDocumentForFind(user);
 	doc<<"Password"<<user.password.toString()<<"Status"<<"Accessible"<<"Role"<<user["Role"];
-	auto cursor=collection.find(doc.view());
-	return cursor.begin()!=cursor.end();
+	auto info=collection.find_one(doc.view());
+	return bool(info);
 }
 
 bool Database::isAdmin(const User& user){
 	auto collection=db["User"];
 	document doc=toDocumentForFind(user);
 	doc<<"Password"<<user.password.toString()<<"Status"<<"Accessible";
-	auto cursor=collection.find(doc.view());
-	if (cursor.begin()!=cursor.end()){
-		string role((*cursor.begin())["Role"].get_utf8().value);
+	auto info=collection.find_one(doc.view());
+	if (info){
+		string role(info->view()["Role"].get_utf8().value);
 		if (role=="Admin"||role=="Root") return 1;
 	}
-	else{
-		return 0;
-	}
+	return 0;
 }
 
 bool Database::isRoot(const User& user){
 	auto collection=db["User"];
 	document doc=toDocumentForFind(user);
 	doc<<"Password"<<user.password.toString()<<"Status"<<"Accessible";
-	auto cursor=collection.find(doc.view());
-	if (cursor.begin()!=cursor.end()){
-		string role((*cursor.begin())["Role"].get_utf8().value);
+	auto info=collection.find_one(doc.view());
+	if (info){
+		string role(info->view()["Role"].get_utf8().value);
 		if (role=="Root") return 1;
 	}
-	else{
-		return 0;
+	return 0;
+}
+
+// Find according to uniqueKey
+bool Database::findOne(Object& obj){
+	auto collection=db[obj.typeName()];
+	document doc=toDocumentForFind(obj);
+	auto info=collection.find_one(doc.view());
+	if (info&&info->view()["Status"].get_utf8().value!="Frozen"){
+		for (int k=0;k<2;++k)for (auto key:(k?obj.explicitKey():obj.implicitKey())){
+			obj.update(key,string(info->view()[key].get_utf8().value));
+		}
+		return 1;
 	}
+	return 0;
+}
+
+bool Database::objectExist(const Object& obj){
+	auto collection=db[obj.typeName()];
+	document doc=toDocument(obj);
+	auto info=collection.find_one(doc.view());
+	if (info&&info->view()["Status"].get_utf8().value!="Frozen"){
+		return 1;
+	}
+	return 0;
 }
 
 /*
-bool Database::findOne(Object& obj); // Find according to uniqueKey
-bool Database::objectExist(const Object& obj);
-
 string Database::newRecordId();
 ErrorCode Database::add(const Object& object);
 ErrorCode Database::update(const Object& object);
