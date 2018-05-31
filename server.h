@@ -40,6 +40,7 @@ public:
 	
 	ErrorCode userRegister(User user);
 	ErrorCode userLogin(User user);
+	ErrorCode modifyPassword(User user,Password newPwd);
 
 	ErrorCode borrowBook(const User& currentUser,const PracticalBook& book);
 	ErrorCode returnBook(const User& currentUser,const PracticalBook& book);

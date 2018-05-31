@@ -15,6 +15,8 @@ enum ErrorCode{
 	invalidKey,
 	
 	loginFailed,
+	noSuchUser,
+	wrongPassword,
 	loginAgain,
 	
 	bookInaccessible,

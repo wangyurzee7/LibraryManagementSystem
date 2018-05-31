@@ -161,12 +161,21 @@ ErrorCode Server::userRegister(User user){
 
 
 ErrorCode Server::userLogin(User user){
-	if (!db->userExist(user)) return loginFailed;
-	if (!db->objectExist(user)) return unknownError;
+	if (!db->findOne(user)) return noSuchUser;
+	if (!db->userExist(user)) return wrongPassword;
 	if (user["Status"]!="Accessible") return loginFailed;
 	
 	return noError;
 }
+/*
+ErrorCode Server::modifyPassword(User user,Password newPwd){
+	if (!db->findOne(user)) return userNotFound;
+	if (!db->userExist(user)) return wrongPassword;
+	if (user["Status"]!="Accessible") return loginFailed;
+	
+	return db->modifyPassword(user,newPwd);
+}
+*/
 
 ErrorCode Server::borrowBook(const User& currentUser,const PracticalBook& book){
 	PracticalBook res=book;
@@ -289,6 +298,8 @@ ErrorCode Server::freeze(const User &currentUser,ObjType obj){
 	if (!db->findOne(obj)) return objectNotFound;
 	if (obj["Status"]!="Accessible") return objectNotAccessible;
 	
+	if (!db->userExist(currentUser)) return loginAgain;
+	
 	bool authority=0;
 	if (currentUser.typeName()=="User"){
 		string role=obj["Role"];
@@ -325,6 +336,8 @@ template<typename ObjType>
 ErrorCode Server::unfreeze(const User &currentUser,ObjType obj){
 	if (!db->findOne(obj)) return objectNotFound;
 	if (obj["Status"]!="Frozen") return objectNotAccessible;
+	
+	if (!db->userExist(currentUser)) return loginAgain;
 	
 	bool authority=0;
 	if (currentUser.typeName()=="User"){
