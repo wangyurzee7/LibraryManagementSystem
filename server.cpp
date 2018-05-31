@@ -37,7 +37,13 @@ ErrorCode Server::search(const User &currentUser,const Search& key,vector<ObjTyp
 	
 	if (authority){
 		ret.clear();
-		return db->search(key,ret);
+		ErrorCode errorCode=db->search(key,ret);
+		for (auto it=ret.begin();it!=ret.end();++it)
+			if ((*it)["Status"]=="Frozen"){
+				swap(*it,ret.back());
+				ret.pop_back();
+			}
+		return errorCode;
 	}
 	else{
 		return permissionDenied;
@@ -154,8 +160,10 @@ ErrorCode Server::userRegister(User user){
 }
 
 
-ErrorCode Server::userLogin(const User& user){
+ErrorCode Server::userLogin(User user){
 	if (!db->userExist(user)) return loginFailed;
+	if (!db->objectExist(user)) return unknownError;
+	if (user["Status"]!="Accessible") return loginFailed;
 	
 	return noError;
 }
