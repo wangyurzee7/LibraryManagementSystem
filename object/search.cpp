@@ -23,3 +23,5 @@ FormatInfo Search::invalidFields() const{
 multiset<Field> Search::fields() const{
 	return attribute;
 }
+
+Search::Search(){}

@@ -11,6 +11,7 @@ public:
 	Password password;
 
 	using Object::Object;
+	User();
 	User(const string&);
 	User(const string&,const string&);
 	void enterPassword(const string&);

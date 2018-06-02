@@ -9,6 +9,7 @@ using namespace std;
 class Record:public Object{
 public:
 	using Object::Object;
+	Record();
 	Record(const string&);
 	
 	virtual string typeName() const override;

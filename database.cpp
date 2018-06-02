@@ -41,6 +41,20 @@ document toDocumentForFind(const Object &obj){
 	for (auto key:obj.uniqueKey()) doc<<key<<obj[key];
 	return doc;
 }
+document toCompleteDocument(const Object &obj){
+	document doc;
+	for (int k=0;k<2;++k)for (auto key:(k?obj.explicitKey():obj.implicitKey()))
+		doc<<key<<obj[key];
+	return doc;
+}
+document toCompleteDocument(const User &obj){
+	document doc;
+	for (int k=0;k<2;++k)for (auto key:(k?obj.explicitKey():obj.implicitKey()))
+		doc<<key<<obj[key];
+	doc<<"Password"<<obj.password.toString();
+	return doc;
+}
+
 
 
 // check "Role" at the same time
@@ -134,18 +148,53 @@ ErrorCode Database::modifyPassword(const User& user,const Password& newPwd){
 	else return userNotFound;
 }
 
-
-ErrorCode Database::add(const Object& object){
-	
-}
-ErrorCode Database::update(const Object& object){
-	
-}
-ErrorCode Database::remove(const Object& object){
-	
-}
-
 template<typename ObjType>
-ErrorCode Database::search(const Search& key,vector<ObjType> &ret){
+ErrorCode Database::add(const ObjType &obj){
+	auto collection=db[obj.typeName()];
+	if (collection.find_one(toDocumentForFind(obj).view())) return objectExists;
 	
+	document doc=toCompleteDocument(obj);
+	
+	collection.insert_one(doc.view());
+	return noError;
+}
+template<typename ObjType>
+ErrorCode Database::update(const ObjType& obj){
+	auto collection=db[obj.typeName()];
+	document doc=toDocumentForFind(obj);
+	if (!collection.find_one(doc.view())) return objectNotFound;
+	
+	document newDoc;
+	newDoc<<"$set"<<toDocument(obj);
+	
+	collection.update_one(doc.view(),newDoc.view());
+	return noError;
+}
+template<typename ObjType>
+ErrorCode Database::remove(const ObjType& obj){
+	auto collection=db[obj.typeName()];
+	document doc=toDocumentForFind(obj);
+	if (!collection.find_one(doc.view())) return objectNotFound;
+	
+	collection.remove(doc.view());
+	return noError;
+}
+
+template<typename ObjType,typename SearchStrategy>
+ErrorCode Database::search(const SearchStrategy& key,vector<ObjType> &ret){
+	auto collection=db[ObjType().typeName()];
+	document doc=toDocument(key);
+	
+	auto cursor=collection.find(doc.view());
+	
+	ret.clear();
+	for (auto element:cursor){
+		ObjType obj;
+		for (int k=0;k<2;++k)for (auto key:(k?obj.explicitKey():obj.implicitKey())){
+			obj.update(key,element->view()[key].get_utf8().value);
+		}
+		ret.push_back(obj);
+	}
+	
+	return noError;
 }

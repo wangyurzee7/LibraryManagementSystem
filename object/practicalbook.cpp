@@ -19,6 +19,7 @@ vector<string> PracticalBook::explicitKey() const{
 }
 
 
+PracticalBook::PracticalBook(){}
 PracticalBook::PracticalBook(const string& no){
 	Object::update("No",no);
 }

@@ -9,6 +9,7 @@ using namespace std;
 class PracticalBook:public Object{
 public:
 	using Object::Object;
+	PracticalBook();
 	PracticalBook(const string&);
 	PracticalBook(const string&,const string&);
 	

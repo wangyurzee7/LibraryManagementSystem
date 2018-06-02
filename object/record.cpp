@@ -19,6 +19,7 @@ vector<string> Record::explicitKey() const{
 }
 
 
+Record::Record(){}
 Record::Record(const string& id){
 	Object::update("Id",id);
 }

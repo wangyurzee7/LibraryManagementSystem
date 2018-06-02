@@ -19,6 +19,7 @@ vector<string> User::explicitKey() const{
 }
 
 
+User::User(){}
 User::User(const string& username){
 	Object::update("Username",username);
 }

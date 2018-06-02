@@ -19,6 +19,7 @@ vector<string> Book::explicitKey() const{
 }
 
 
+Book::Book(){}
 Book::Book(const string& no){
 	Object::update("No",no);
 }

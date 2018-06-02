@@ -40,6 +40,7 @@ private:
 	// bsoncxx::builder::stream::document toDocument(const FuzzyMatchingSearch &obj);
 	document toDocument(const ReSearch &obj);
 	
+	document toCompleteDocument(const Object &obj);
 	document toDocumentForFind(const Object &obj);
 public:
 	Database(const string& _name="LMS");
@@ -51,11 +52,15 @@ public:
 	// Functions above ensures that objects are not Frozen.
 	
 	string newRecordId();
-	ErrorCode add(const Object& object);
-	ErrorCode update(const Object& object);
 	ErrorCode modifyPassword(const User& user,const Password& newPwd);
-	ErrorCode remove(const Object& object);
+	
 	template<typename ObjType>
-	ErrorCode search(const Search& key,vector<ObjType> &ret);
+	ErrorCode add(const ObjType& obj);
+	template<typename ObjType>
+	ErrorCode update(const ObjType& obj);
+	template<typename ObjType>
+	ErrorCode remove(const ObjType& obj);
+	template<typename ObjType,typename SearchStrategy>
+	ErrorCode search(const SearchStrategy& key,vector<ObjType> &ret);
 };
 

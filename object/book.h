@@ -9,6 +9,7 @@ using namespace std;
 class Book:public Object{
 public:
 	using Object::Object;
+	Book();
 	Book(const string&);
 	
 	virtual string typeName() const override;
