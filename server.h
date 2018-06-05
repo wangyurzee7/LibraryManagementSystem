@@ -39,7 +39,7 @@ public:
 	ErrorCode remove(const User &currentUser,const ObjType &obj);
 	
 	ErrorCode userRegister(User user);
-	ErrorCode userLogin(User user);
+	ErrorCode userLogin(User &user);
 	ErrorCode modifyPassword(User user,Password newPwd);
 
 	ErrorCode borrowBook(const User& currentUser,const PracticalBook& book);

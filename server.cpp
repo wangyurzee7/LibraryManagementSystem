@@ -160,7 +160,7 @@ ErrorCode Server::userRegister(User user){
 }
 
 
-ErrorCode Server::userLogin(User user){
+ErrorCode Server::userLogin(User &user){
 	if (!db->findOne(user)) return noSuchUser;
 	if (!db->userExist(user)) return wrongPassword;
 	if (user["Status"]!="Accessible") return loginFailed;
