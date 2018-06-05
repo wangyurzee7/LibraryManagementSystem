@@ -22,16 +22,17 @@ ErrorCode Server::search(const User &currentUser,const Search& key,vector<ObjTyp
 	if (!db->userExist(currentUser)) return loginAgain;
 	
 	bool authority=0;
-	if (currentUser.typeName()=="User"){
+	string objType=ObjType().typeName();
+	if (objType=="User"){
 		authority=db->isAdmin(currentUser)||currentUser["username"]==key["username"];
 	}
-	else if (currentUser.typeName()=="Book"){
+	else if (objType=="Book"){
 		authority=1;
 	}
-	else if (currentUser.typeName()=="ParcticalBook"){
+	else if (objType=="ParcticalBook"){
 		authority=1;
 	}
-	else if (currentUser.typeName()=="Record"){
+	else if (objType=="Record"){
 		authority=db->isAdmin(currentUser)||currentUser["username"]==key["username"];
 	}
 	
@@ -59,7 +60,8 @@ ErrorCode Server::add(const User &currentUser,ObjType obj){
 	if (!db->userExist(currentUser)) return loginAgain;
 	
 	bool authority=0;
-	if (currentUser.typeName()=="User"){
+	string objType=ObjType().typeName();
+	if (objType=="User"){
 		string role=obj["Role"];
 		if (role=="Reader"){
 			authority=db->isAdmin(currentUser);
@@ -71,13 +73,13 @@ ErrorCode Server::add(const User &currentUser,ObjType obj){
 			authority=0;
 		}
 	}
-	else if (currentUser.typeName()=="Book"){
+	else if (objType=="Book"){
 		authority=db->isAdmin(currentUser);
 	}
-	else if (currentUser.typeName()=="ParcticalBook"){
+	else if (objType=="ParcticalBook"){
 		authority=db->isAdmin(currentUser);
 	}
-	else if (currentUser.typeName()=="Record"){
+	else if (objType=="Record"){
 		authority=0;
 	}
 	
@@ -99,8 +101,9 @@ ErrorCode Server::update(const User &currentUser,ObjType obj){
 	if (!db->userExist(currentUser)) return loginAgain;
 	
 	bool authority=0;
+	string objType=ObjType().typeName();
 	if (obj["Status"]!="") authority=db->isRoot(currentUser);
-	else if (currentUser.typeName()=="User"){
+	else if (objType=="User"){
 		if (currentUser["username"]==obj["username"])
 			authority=1;
 		else{
@@ -116,14 +119,15 @@ ErrorCode Server::update(const User &currentUser,ObjType obj){
 			}
 		}
 	}
-	if (currentUser.typeName()=="Book"){
+	if (objType=="Book"){
 		authority=db->isAdmin(currentUser);
 	}
-	if (currentUser.typeName()=="ParcticalBook"){
+	if (objType=="ParcticalBook"){
 		authority=db->isAdmin(currentUser);
 	}
-	if (currentUser.typeName()=="Record"){
-		authority=db->isRoot(currentUser);
+	if (objType=="Record"){
+	
+	authority=db->isRoot(currentUser);
 	}
 	
 	if (authority){
@@ -301,7 +305,8 @@ ErrorCode Server::freeze(const User &currentUser,ObjType obj){
 	if (!db->userExist(currentUser)) return loginAgain;
 	
 	bool authority=0;
-	if (currentUser.typeName()=="User"){
+	string objType=ObjType().typeName();
+	if (objType=="User"){
 		string role=obj["Role"];
 		if (role=="Reader"){
 			authority=db->isAdmin(currentUser);
@@ -313,13 +318,13 @@ ErrorCode Server::freeze(const User &currentUser,ObjType obj){
 			authority=0;
 		}
 	}
-	else if (currentUser.typeName()=="Book"){
+	else if (objType=="Book"){
 		authority=db->isAdmin(currentUser);
 	}
-	else if (currentUser.typeName()=="ParcticalBook"){
+	else if (objType=="ParcticalBook"){
 		authority=db->isAdmin(currentUser);
 	}
-	else if (currentUser.typeName()=="Record"){
+	else if (objType=="Record"){
 		authority=0;
 	}
 	
@@ -340,7 +345,8 @@ ErrorCode Server::unfreeze(const User &currentUser,ObjType obj){
 	if (!db->userExist(currentUser)) return loginAgain;
 	
 	bool authority=0;
-	if (currentUser.typeName()=="User"){
+	string objType=ObjType().typeName();
+	if (objType=="User"){
 		string role=obj["Role"];
 		if (role=="Reader"){
 			authority=db->isAdmin(currentUser);
@@ -352,13 +358,13 @@ ErrorCode Server::unfreeze(const User &currentUser,ObjType obj){
 			authority=0;
 		}
 	}
-	else if (currentUser.typeName()=="Book"){
+	else if (objType=="Book"){
 		authority=db->isAdmin(currentUser);
 	}
-	else if (currentUser.typeName()=="ParcticalBook"){
+	else if (objType=="ParcticalBook"){
 		authority=db->isAdmin(currentUser);
 	}
-	else if (currentUser.typeName()=="Record"){
+	else if (objType=="Record"){
 		authority=0;
 	}
 	
