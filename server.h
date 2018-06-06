@@ -38,9 +38,11 @@ public:
 	template<typename ObjType>
 	ErrorCode remove(const User &currentUser,const ObjType &obj);
 	
-	ErrorCode userRegister(User user);
+	// ErrorCode userRegister(User user);
 	ErrorCode userLogin(User &user);
 	ErrorCode modifyPassword(User user,Password newPwd);
+
+	// ErrorCode bookToPracticalBook(const User &currentUser,const Book &book);
 
 	ErrorCode borrowBook(const User& currentUser,const PracticalBook& book);
 	ErrorCode returnBook(const User& currentUser,const PracticalBook& book);

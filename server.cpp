@@ -153,16 +153,6 @@ ErrorCode Server::remove(const User &currentUser,const ObjType &obj){
 }
 
 
-ErrorCode Server::userRegister(User user){
-	if (!user.invalidFields().empty()) return invalidInfo;
-	
-	if (user["Role"]!="Reader") return permissionDenied;
-	
-	user.update("Status","Accessible");
-	
-	return db->add(user);
-}
-
 
 ErrorCode Server::userLogin(User &user){
 	if (!db->findOne(user)) return noSuchUser;
