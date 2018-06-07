@@ -39,11 +39,13 @@ ErrorCode Server::search(const User &currentUser,const Search& key,vector<ObjTyp
 	if (authority){
 		ret.clear();
 		ErrorCode errorCode=db->search(key,ret);
-		for (auto it=ret.begin();it!=ret.end();++it)
-			if ((*it)["Status"]=="Frozen"){
-				swap(*it,ret.back());
-				ret.pop_back();
-			}
+		if (key["Status"]==""){
+			for (auto it=ret.begin();it!=ret.end();++it)
+				if ((*it)["Status"]=="Frozen"){
+					swap(*it,ret.back());
+					ret.pop_back();
+				}
+		}
 		return errorCode;
 	}
 	else{

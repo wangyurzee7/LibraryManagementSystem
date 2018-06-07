@@ -25,14 +25,17 @@ document toDocument(const Object &obj){
 	}
 	return doc;
 }
-document toDocument(const CompleteMatchingSearch &obj){
+document toDocument(const Search &obj){
 	document doc;
-	for (auto ele:obj.fields()) doc<<ele.key<<ele.value;
-	return doc;
-}
-document toDocument(const ReSearch &obj){
-	document doc;
-	for (auto ele:obj.fields()) doc<<ele.key<<open_document<<"$regex"<<ele.value<<close_document;
+	for (auto ele:obj.fields()){
+		string strategy=obj.strategyName();
+		if (strategy=="CompleteMatching"){
+			doc<<ele.key<<ele.value;
+		}
+		else if (strategy=="RegularExpression"){
+			doc<<ele.key<<open_document<<"$regex"<<ele.value<<close_document;
+		}
+	}
 	return doc;
 }
 
@@ -180,8 +183,8 @@ ErrorCode Database::remove(const ObjType& obj){
 	return noError;
 }
 
-template<typename ObjType,typename SearchStrategy>
-ErrorCode Database::search(const SearchStrategy& key,vector<ObjType> &ret){
+template<typename ObjType>
+ErrorCode Database::search(const Search& key,vector<ObjType> &ret){
 	auto collection=db[ObjType().typeName()];
 	document doc=toDocument(key);
 	

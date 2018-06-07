@@ -36,9 +36,10 @@ private:
 	mongocxx::database db;
 	
 	document toDocument(const Object &obj);
-	document toDocument(const CompleteMatchingSearch &obj);
+	document toDocument(const Search &obj);
+	// document toDocument(const CompleteMatchingSearch &obj);
 	// bsoncxx::builder::stream::document toDocument(const FuzzyMatchingSearch &obj);
-	document toDocument(const ReSearch &obj);
+	// document toDocument(const ReSearch &obj);
 	
 	document toCompleteDocument(const Object &obj);
 	document toDocumentForFind(const Object &obj);
@@ -60,7 +61,7 @@ public:
 	ErrorCode update(const ObjType& obj);
 	template<typename ObjType>
 	ErrorCode remove(const ObjType& obj);
-	template<typename ObjType,typename SearchStrategy>
-	ErrorCode search(const SearchStrategy& key,vector<ObjType> &ret);
+	template<typename ObjType>
+	ErrorCode search(const Search& key,vector<ObjType> &ret);
 };
 

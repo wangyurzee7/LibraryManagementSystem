@@ -25,3 +25,7 @@ multiset<Field> Search::fields() const{
 }
 
 Search::Search(){}
+
+string CompleteMatchingSearch::strategyName() const{return "CompleteMatching";}
+
+string ReSearch::strategyName() const{return "RegularExpression";}
