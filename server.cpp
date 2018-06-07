@@ -179,6 +179,15 @@ ErrorCode Server::borrowBook(const User& currentUser,const PracticalBook& book){
 	
 	if (res["Status"]!="Accessible") return bookInaccessible;
 	
+	if (db->objectExist(Record({
+		Field("Username",currentUser["Username"]),
+		Field("BookNo",book["No"]),
+		Field("BookIndex",book["Index"]),
+		Field("Status","Pending"),
+		Field("Type","Borrowing")
+	})))
+		return requestAlreadySubmitted;
+	
 	return db->update(Record({
 		Field("Id",db->newRecordId()),
 		Field("Username",currentUser["Username"]),
@@ -195,7 +204,7 @@ ErrorCode Server::returnBook(const User& currentUser,const PracticalBook& book){
 	
 	if (res["Status"]!="Borrowed") return bookNotBorrowed;
 	
-	if (!db->objectExist(Record({
+	if (db->objectExist(Record({
 		Field("Username",currentUser["Username"]),
 		Field("BookNo",book["No"]),
 		Field("BookIndex",book["Index"]),
