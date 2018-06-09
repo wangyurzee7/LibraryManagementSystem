@@ -1,138 +1,65 @@
-class loginclient
-{
-	LoginController login;
-	string a,b;
-	public:
-	loginclient(Server *_server):login(_server){}
-	string start();
-}
+#include<bits/stdc++.h>
+#include<../controller/controller.h>
+using namespace std;
 
-string loginclient::start()
+class Loginclient
 {
-		cout<<"输入用户名和密码";
-		cin >> a >> b;
-		vector<string> s=login.login(a,b);
-			cout<<s[1]<<" "<<s[2]<<endl;
-		if(s[0]!="错误")
-		{
-			return s[1];
-		}
-		else
-		{
-			return "错误";
-			}
-	}
+	public:
+		string start(LoginController *log);
+}
 
 class Readerclient{
-	ReaderController rct;
+	protected:
+		void Aftersearch(ReaderController *rct);//看完书之后的
+		void freezebook(ReaderController *rct, int i);
+		void showbook(ReaderController *rct,int i);
+		void outputinfo(ReaderController *rct);//输出消息
+		void borrowbook(ReaderController *rct,int i);
+		void browsebook(ReaderController *rct,int i);
+		void returnbook(ReaderController *rct,int i);
+		void showrcd(ReaderController *rct);
+		virtual void readbookrcd(ReaderController *rct, int i){cout<<"您无权阅读此书记录"<<endl;}
+		virtual void freezebook(ReaderController *rct, int i){cout<<"您无权冻结此书"<<endl;}
+		virtual void removebook(ReaderController *rct, int i){cout<<"您无权删除此书"<<endl;}
+		void switchrecord(ReaderController *rct);
 	public:
 		Readerclient(){}
-		void outputinfo();
-		void searchbook();
-		void highersearchbook();
-		void showbook(int i);
-		void borrowbook(int i);
-		void browsebook(int i);
-		void listborrowingbooks();
-		void returnbook(int i);
-		void modifyPassword();
-		void readselfrcd();
+		void searchbook(ReaderController *rct);
+		void highersearchbook(ReaderController *rct);
+		void listborrowingbooks(ReaderController *rct);
+		void modifyPassword(ReaderController *rct);
+		void readselfrcd(ReaderController *rct);
 	}
 
-void ReaderController::outputinfo()
+class Adminclient:public Readerclient
 {
-	int j=info.size();
-	if(j==0) return;
-	for(string i=0;i<j;i++)
-	{
-		cout<<info[i]<<" ";
-		if(i%3==2)
-		cout<<endl;
-	}
-	return;
+	protected:
+		void deal(AdminController *rct, int i,bool j);
+		void showusr(AdminController *rct, int i);
+		void readusrrcd(AdminController *rct,int i);
+		virtual void freezeusr (AdminController *rct,int i)override final;
+		virtual void freezebook (AdminController *rct,int i)override final;
+		void unfreezebk(AdminController *rct,int i);
+		void unfreezeusr(AdminController *rct,int i);
+		virtual void removeusr(AdminController *rct,int i){cout<<"您无权删除此用户"<<endl;}
+	public:
+		void viewusr(AdminController *rct);
+		
+		void addbk(AdminController *rct);
+		
+		void listfreezebook(AdminController *rct);
+		void listfreezeuser(AdminController *rct);
+		
+		void Register(AdminController *rct);
+		void showpending(AdminController *rct);
+		
+		void readbookrcd(AdminController *rct, int i);
+		void readusrrcd(AdminController *rct,int i);
 }
 
-void ReaderController::searchbook()
+class Rootclient:public Adminclient
 {
-	string name;
-	cin >> name;
-	rct.commands.push_back(name);
-	cout<<rct.searchbook();
-	outputinfo();
+	protected:
+		virtual void removebook (RootController *rct,int i)override final;
+		virtual void removeusr (RootController *rct,int i)override final;
 }
-
-void ReaderController::highersearchbook()
-{
-	string that[6];// no >> name >> author>>isbn>>publisher>>remarks
-	for(int i=0;i<6;i++)
-	{
-		cin >> that[i];
-		rct.commands.push_back(that[i]);
-		}
-	cout<<rct.searchbook()<<endl;
-	outputinfo();
-}
-
-void ReaderController::showbook(int i)
-{
-	show(rct.books[i-1]);
-	for(string j:rct.deepinfo)
-		cout<<s<<" ";
-}
-
-void ReaderController::borrowbook(int i)
-{
-	Book book=rct.books[i-1];
-	cout<<rct.borrow(book)<<endl;
-}
-
-void ReaderController::browsebook(int i)
-{
-	Book book=rct.books[i-1];
-	cout<<rct.browsebook(book)<<endl;
-}
-
-void ReaderController::listborrowingbook()
-{
-	cout<<rct.listborrowingbooks(rct.user);
-	outputinfo();
-}
-
-void ReaderController::returnbook(int i)
-{
-	record j=rct.record[i-1];
-	rct.server->search(rct.user,multiset<Field>{Field("No",j["BookNo"]),Field("BookIndex",j["BookIndex"])},prbooks);
-	string s=rct.returnbook(prbook[0]);
-	cout<<s<<endl;
-	if(s=="已发出归还请求")
-	{
-		info[3*i-1]+=" 已归还";
-		outputinfo();
-	}
-}
-
-void ReaderController::modifyPassword()
-{
-	string first,second;
-	cin >> first>>second;
-	cout<<rct.modifypasswd(first,second)<<endl;
-}
-
-void ReaderController::readselfrcd()
-{
-	cout<<rct.readrecord(rct.user)<<endl;
-	outputinfo();
-}
-
-/*class Adminclient
-{
-	AdminController rct;
-	
-}
-
-class Rootclient
-{
-	RootController rct;
-}*/
-//======Gu Gu Gu!======
-

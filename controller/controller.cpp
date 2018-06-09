@@ -1,8 +1,11 @@
 #include <bits/stdc++.h>
-
+#include "controller.h"
 using namespace std;
 
-#include "controller.h"
+User* AbstractController::getus()
+{
+	return user;
+}
 
 vector<string> LoginController::login(const string &usnm,const string &passwd)//LoginController中的update是登录的操作,先把用户名和密码明文打包成vector
 {
@@ -10,7 +13,7 @@ vector<string> LoginController::login(const string &usnm,const string &passwd)//
 	commands.clear();
 	ErrorCode errorcode=server->userlogin(*user);
 	if(errorcode==noError)
-	{
+	{	a=1;
 		return {"登录成功,您的身份是"+user["Role"],
 		user["Role"]};
 	}
@@ -30,10 +33,24 @@ vector<string> LoginController::login(const string &usnm,const string &passwd)//
 		return cmd;
 		}
 	}
+	
+Book ReaderController::getbook(int i)
+{
+	return books[i-1];
+}
+
+PracticalBook ReaderController::getprbook(int i)
+{
+	return books[i-1];
+}
+
+Record ReaderController::getrcd(int i)
+{
+	return record[i-1];
+}
 
 void ReaderController::infobks()
 {
-	
 	for(Book j:books)//列表内只显示名字/出版社
 		{
 			info.push_back(j["Name"]);
@@ -42,10 +59,20 @@ void ReaderController::infobks()
 		}
 }
 
+void ReaderController::infoprbook()
+{
+	for(Book j:prbooks)//列表内只显示名字/出版社
+		{
+			info.push_back(j["No"]);
+			info.push_back(j["Index"]);
+			info.push_back(j["Status"]);
+		}
+}
+
 void ReaderController::inforcd()
 {
 
-	for(auto i:record)
+	for(Record i:record)
 	{
 		info.push_back(i["BookNo"]);
 		info.push_back(i["Time"]);
@@ -65,8 +92,7 @@ string ReaderController::searchbook();//找书,关键信息全部输入commands�
 				i="";
 			}
 		server->search(*user,multiset<Field>{Field("No",commands[0]),Field("Name",commands[1]),Field("Author",commands[2]),Field("ISBN",commands[3]),Field("Publisher",commands[4]),Field("Remarks",commands[5])},books);//分词怎么分?最好用
-		}
-		commands.clear();//使用完命令即删除
+		}//使用完命令即删除
 		int i=books.size();
 		infobks();
 		return{"共发现"+int2str(i)+"种书"};
@@ -87,19 +113,28 @@ void ReaderController::show(ObjType &vect)//点击一下,深度显示一个对�
 string ReaderController::listborrowingbooks(User *use)
 {
 	info.clear();
+	prbooks.clear();
+	vector<string> s;
 	server->search(*use,multiset<Field>{Field("Username",currentUser["Username"]),Field("Status","Accepted"),},record);
 	for(auto i:record)
 	{
-		server->search(*use,multiset<Field>{Field("No",i["BookNo"]),Field("BookIndex",i["BookIndex"])},prbooks);
-		infobks();
+		server->search(*use,multiset<Field>{Field("No",i["BookNo"]),Field("BookIndex",i["BookIndex"])},s);
+		prbooks.push_back(s[0]);
 	}
-	int j=info.size();
+	inforcd();
+	int j=prbooks.size();
 	return "共借阅"+int2str(j)+"本书"
+}
+
+string ReaderController::booksearchpr(const Book &book)
+{
+	info.clear();
+	server->search(*user,multiset<Field>{Field("No",book["No"]),prbooks});
+	infoprbook();
 }
 
 string ReaderController::borrow(Book& book)//点击操作
 {
-	server->search(*user,multiset<Field>{Field("No",book["No"]),prbooks});
 	for(auto i:prbooks)
 	{
 		ErrorCode errorcode=server->borrowBook(*user,i);
@@ -125,6 +160,8 @@ string ReaderController::returnbook(PracticalBook &book)//点击操作
 			return "已发出归还请求";
 	}
 }
+
+
 
 string ReaderController::modifypasswd(string pwd1,string pwd2)//只有进入才能修改密码!
 {
@@ -179,6 +216,11 @@ string ReaderController::browsebook(Book &book)
 	}
 }
 
+User AdminController::getusr(int i)
+{
+	return users[i-1];
+}
+
 void AdminController::infousrs()
 {
 	for(User i:users)
@@ -192,10 +234,14 @@ void AdminController::infousrs()
 string AdminController::finduser()//通过ID或者真名查找用户(非管理员),(保证username是unique的)?
 {
 	info.clear();
+	for(string i:commands)
+		{	if(i=="-")
+				i="";
+			}
 	server->search(*user,multiset<Field>{Field("Username",commands[0]),Field("Realname",commands[1])},users);
 	infousrs();
-		int j=users.size();
-		return "共发现"+int2str(j)+"位用户";
+	int j=users.size();
+	return "共发现"+int2str(j)+"位用户";
 	}
 
 string AdminController::Register()//从vector<>command里面提供材料
@@ -272,7 +318,7 @@ string AdminController::freeze(ObjType &obj)//冻结书籍或者用户专用
 	}
 } 
 
-string AdminController::showfreezebks()
+string AdminController::showfreezebk()
 {
 	info.clear();
 	server->search(*user,multiset<Field>{Field("Status","Frozen")},prbooks);
@@ -293,7 +339,7 @@ string AdminController::showfreezeusr()
 		return "共发现"+int2str(j)+"个被冻结的用户";
 }
 
-string AdminController::readrecord(const PracticalBook &prbook)
+string AdminController::higherreadrecord(const PracticalBook &prbook)
 {
 	info.clear();
 	ErrorCode err=server->search(*user,multiset<Field>{Field("BookNo",prbook["BookNo"]),
