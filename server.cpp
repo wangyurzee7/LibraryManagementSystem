@@ -3,6 +3,7 @@
 using namespace std;
 
 #include "server.h"
+#include "database.h"
 
 string Server::getTime(){
 	const int bufferLen=50;

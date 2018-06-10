@@ -11,8 +11,6 @@
 #include "content/content.h"
 #include "content/txtcontent.h"
 
-#include "database.h"
-
 #include "errorcode.h"
 
 
@@ -21,7 +19,7 @@ using namespace std;
 #pragma once
 class Server{
 private:
-	Database* db;
+	class Database* db;
 	string getTime();
 public:
 	Server(Database* ptr);
