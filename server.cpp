@@ -29,7 +29,7 @@ ErrorCode Server::search(const User &currentUser,const Search& key,vector<ObjTyp
 	else if (objType=="Book"){
 		authority=1;
 	}
-	else if (objType=="ParcticalBook"){
+	else if (objType=="PracticalBook"){
 		authority=1;
 	}
 	else if (objType=="Record"){
@@ -78,7 +78,7 @@ ErrorCode Server::add(const User &currentUser,ObjType obj){
 	else if (objType=="Book"){
 		authority=db->isAdmin(currentUser);
 	}
-	else if (objType=="ParcticalBook"){
+	else if (objType=="PracticalBook"){
 		authority=db->isAdmin(currentUser);
 	}
 	else if (objType=="Record"){
@@ -124,7 +124,7 @@ ErrorCode Server::update(const User &currentUser,ObjType obj){
 	if (objType=="Book"){
 		authority=db->isAdmin(currentUser);
 	}
-	if (objType=="ParcticalBook"){
+	if (objType=="PracticalBook"){
 		authority=db->isAdmin(currentUser);
 	}
 	if (objType=="Record"){
