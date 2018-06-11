@@ -4,91 +4,92 @@
 
 using namespace std;
 
-class AbstractController{//所有Controller的基类,派生两个类:登陆界面,读者/管理员/root界面
+class AbstractController{
 	protected:
 		Server *server;//用到的服务器名称
 		User *user;//用到的用户
-		bool a;
+		bool finalQuit;
 	public:
-		AbstractController(Server *_server):server(_server),a(0){}
-		~AbstractController(){
-		if(a==0)//保证登录成功退出LoginController的时候不会删除服务器和用户
-		{
-			if(server!=nullptr)
-				delete server;
-			if(user!=nullptr)
-				delete user;
-		}
-	}
-		User* getus();
+		AbstractController(Server *_server):server(_server),finalQuit(1){}
+		~AbstractController();
+		User* getUser();
+};
 
-}
+class LoginController:public AbstractController
+{
+	public:
+		LoginController(Server *_server):AbstractController(_server){}
+		vector<string> login(const string &userName,const string &passWord);
+	//Server* getServer();
+	//User* getuser();
+};
+//放到后面的AdminRegister里面
 
-class LoginController:public AbstractController{
-public:
-	LoginController(Server *_server):AbstractController(_server){}
-	vector<string> login(const string &usnm,const string &passwd);
-	Server* getserver();
-	User* getuser();
-}
-};//放到后面的AdminRegister里面
-
-class ReaderController:public AbstractController{//找书
+class ReaderController:public AbstractController
+{//找书
 	protected:
 		vector<Book> books;//检索出来的书籍存放在这里
-		vector<PracticalBook> prbooks;
-		vector<Record> record;
-		void infobks();
-		void infoprbook();
-		void inforcd();
+		vector<PracticalBook> practicalBooks;
+		vector<Record> records;
+		void infoBook();
+		void infoPracticalBook();
+		void infoRecord();
 	public:
 		vector<string> commands;//不确定行数的命令放这里(即时)
-		vector<string> info;//多个Obj的简要信息存放在这里
-		vector<string> deepinfo;//一个Obj的繁琐信息存放在这里
+		vector<string> info;//搜索出的object的简要信息存放在这里
+		vector<string> deepInfo;//一个Obj的繁琐信息存放在这里
 		ReaderController(Server *_server,User *_user):AbstractController(_server),use(_user){}
 		~ReaderController(){}
-		//接下来3个为client接口
-		Book getbook(int i);//第几条书
-		PracticalBook getprbook(int i);//第几本书
-		Record getrcd(int i);//第几条记录
-		//接下来是
-		string searchbook();
-		void booksearchpr(const Book &book);
+		
+		Book getBook(int number);
+		string searchBook();
+		string browseBook(const Book &book);
+		
+		PracticalBook getPracticalBook(int number);
+		
+		void bookToPractical(const Book &book);
+		string borrowBook(const Book &book);
+		
+		Record getRecord(int number);
+		
 		template<class ObjType>
-			void show(ObjType &vect);//显示一个ObjType的全部信息
-		string listborrowingbooks(User *use);//列出自己借阅过/正在借阅的书籍
-		string borrow(Book &book);//yc可以把show出来的书籍里给出一个"借阅"按钮
-
-		string returnbook(PracticalBook &book);//
-		string modifypasswd(string pwd1,string pwd2);
-		string readrecord(User *use);//读阅记录
-		string browsebook(Book &book);//
-}
+			void show(const ObjType &objectVector);
+			
+		string listBorrowingBooks(User *_user);
+		string returnBook(const PracticalBook &book);
+		
+		string modifyPassword(string password1,string password2);
+		string readRecord(User *_user);
+		
+};
 
 class AdminController:public ReaderController
 {
 	protected:
 		vector<User> users;
-		void infousrs();
+		void infoUser();
 	public:
 		AdminController(Server *_server,User *_user):ReaderController(_server,_user){}
-		User getusr(int i);
-		string finduser();//找读者(普通用户/高级用户)
-		string Register();//注册一个账号(reader或者administrator)
-		string addbook();//输入一本书的信息
-		string showpendingbk();//展示需要处理的书
-		string deal(const Record &rcd,bool a);//a=0是reject,a=1是accept
+		User getUser(int number);
+		string findUser();//找读者(普通用户/高级用户)
+		string registerUser();//注册一个账号(reader或者administrator)
+		string addBook(const Book &book);//输入一本书的信息
+		string addNewBook();
+		string showPendingBook();//展示需要处理的书
+		string deal(const Record &record,bool accept);
+		string editBook(const Book &book);
 		
 		template<class ObjType>
-			string freeze(ObjType &obj);
+			string freeze(const ObjType &obj);
 		
-		string showfreezebk();
-		string showfreezeusr();
+		string showFreezeBook();
+		string showFreezeUser();
 		
-		string higherreadrecord(const PracticalBook &prbook);
+		string readBookRecord(const PracticalBook &practicalBook);
+		
 		template<class ObjType>
 			string unfreeze(ObjType &obj);
-}
+};
 
 class RootController:public AdminController
 {
@@ -98,4 +99,4 @@ class RootController:public AdminController
 			string remove(const ObjType &obj);
 		//template<class ObjType>
 			//string modify(const Obj);
-}
+};
