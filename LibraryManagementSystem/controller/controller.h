@@ -72,25 +72,27 @@ class ReaderController:public AbstractController
 		
 //========the followings are all virtual functions,do not care=============
 		virtual User getUser(int number){};
-		virtual string findUser(){}//找读者(普通用户/高级用户)
-		virtual string registerUser(){}//注册一个账号(reader或者administrator)
+		virtual string findUser(const string &username){}//找读者(普通用户/高级用户)
+		virtual string registerUser(const string &username,const string &password,string identity){}//注册一个账号(reader或者administrator)
+		virtual string addBook(Book &book);
 		virtual string addNewBook(){}//增加一本新的书
 		virtual string showPendingBook(){}//展示需要处理的书
-		virtual string deal(Record &record,bool accept){}
-		virtual string editBook(Book &book){}//
+		virtual string deal(Record record,bool accept){}
+		virtual string editBook(Book book){}//
 		
 		virtual string freezeBook(PracticalBook &practicalBook){}
 		virtual string freezeUser(User &user){}
 		
-		virtual string showFreezeBook(PracticalBook &practicalBook){}
-		virtual string showFreezeUser(User &user){}
+		virtual string showFreezeBook(){}
+		virtual string showFreezeUser(){}
 		
-		virtual string readBookRecord(PracticalBook &practicalBook){}
+		virtual string readBookRecord(const PracticalBook &practicalBook){}
 		
 		virtual string unfreezeBook(PracticalBook &practicalBook){}
-		virtual string unfreezeUser(User &user){}
-		virtual string removeUser(User &user){};
-		virtual string removePracticalBook(PracticalBook &practicalBook){};
+		virtual string unfreezeUser(User &_user){}
+		
+		virtual string removeUser(User user){};
+		virtual string removePracticalBook(PracticalBook practicalBook){};
 };
 
 class AdminController:public ReaderController
@@ -102,29 +104,31 @@ class AdminController:public ReaderController
 			string freeze(ObjType obj);//freeze的骨架
 		template<class ObjType>
 			string unfreeze(ObjType obj);//unfreeze的骨架
-		 string addBook(Book &book);//输入一本书的信息
 	public:
 		AdminController(Server *_server,LoginController &loginController):ReaderController(_server,loginController){}
 		virtual string type() ;
 		virtual User getUser(int number) ;
 		virtual string findUser(const string &username);//找读者(普通用户/高级用户)
-		virtual string registerUser();//注册一个账号(reader或者administrator)
+		virtual string registerUser(const string &username,const string &password,string identity);//注册一个账号(reader或者administrator)
 		
+		virtual string addBook(Book &book);
 		virtual string addNewBook();//增加一本新的书
 		virtual string showPendingBook();//展示需要处理的书
-		virtual string deal(Record &record,bool accept);
-		virtual string editBook(Book &book);//
+		virtual string deal(Record record,bool accept);
+		virtual string editBook(Book book);//
+		
+		virtual string freezeBook(PracticalBook &practicalBook){return freeze(practicalBook);}
+		virtual string freezeUser(User &user){return freeze(user);}
+		
 		
 		virtual string showFreezeBook();
 		virtual string showFreezeUser();
 		
 		virtual string readBookRecord(const PracticalBook &practicalBook);
 		
-		virtual string freezeBook(PracticalBook &practicalBook){return freeze(practicalBook);}
-		virtual string freezeUser(User &user){return freeze(user);}
 		
 		virtual string unfreezeBook(PracticalBook &practicalBook){return unfreeze(practicalBook);}
-		virtual string unfreezeUser(User &user){return unfreeze(user);}
+		virtual string unfreezeUser(User &_user){return unfreeze(_user);}
 };
 
 class RootController:public AdminController
