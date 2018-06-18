@@ -46,7 +46,7 @@ class ReaderController:public AbstractController
 		
 		vector<string> info;//搜索出的object的简要信息存放在这里,controller负责在每次需要用的之前清理
 		vector<string> deepInfo;//一个Obj的繁琐信息存放在这里,在每次需要用之前清理
-		ReaderController(Server *_server,LoginController &loginController):AbstractController(_server,loginController.getSelf()){}
+		ReaderController(Server *_server,LoginController *loginController):AbstractController(_server,loginController->getSelf()){}
 		~ReaderController(){}
 		
 		virtual string type();//标志着类别的"type"设计模式
@@ -105,7 +105,7 @@ class AdminController:public ReaderController
 		template<class ObjType>
 			string unfreeze(ObjType obj);//unfreeze的骨架
 	public:
-		AdminController(Server *_server,LoginController &loginController):ReaderController(_server,loginController){}
+		AdminController(Server *_server,LoginController *loginController):ReaderController(_server,loginController){}
 		virtual string type() ;
 		virtual User getUser(int number) ;
 		virtual string findUser(const string &username);//找读者(普通用户/高级用户)
@@ -136,7 +136,7 @@ class RootController:public AdminController
 	template<class ObjType>
 		string removeObject(ObjType obj);//remove的骨架
 	public:
-		RootController(Server *_server,LoginController &loginController):AdminController(_server,loginController){}
+		RootController(Server *_server,LoginController *loginController):AdminController(_server,loginController){}
 		virtual string type();
 		virtual string removeUser(User user);
 		virtual string removePracticalBook(PracticalBook practicalBook);
