@@ -41,7 +41,7 @@ string ReaderController::type()
 
 void ReaderController::infoBook()
 {
-	for(Book j:books)//列表内只显示名字/出版社
+	for(Book j:books)
 		{
 			info.push_back(j["Name"]);
 			info.push_back(j["Author"]);
@@ -51,7 +51,7 @@ void ReaderController::infoBook()
 
 void ReaderController::infoPracticalBook()
 {
-	for(PracticalBook j:practicalBooks)//列表内只显示名字/出版社
+	for(PracticalBook j:practicalBooks)
 		{
 			info.push_back(j["No"]);
 			info.push_back(j["Index"]);
@@ -75,13 +75,13 @@ Book ReaderController::getBook(int number)
 	return books[number-1];
 }
 
-string ReaderController::searchBook()//找书,关键信息全部输入commands里
+string ReaderController::searchBook()
 {
 	info.clear();
 	if(commands.size()==1)
 	{	ReSearch key=ReSearch(multiset<Field>{Field("Name",commands[0])});
 		server->search(user,key,books);}
-	else //如果点击"高级搜索"则在commands里push一个"others",你可以给出一张页面(输入不同方法检索串的bar)
+	else //你可以给出一张页面(输入不同方法检索串的bar)
 	{
 		vector<string>s=Book().explicitKey();
 		multiset<Field> searchKey;
@@ -106,8 +106,8 @@ string ReaderController::browseBook(Book &book)
 	ErrorCode err=server->browseBook(user,book);
 	switch(err)
 	{
-		//case bookNotFound:
-			//return "错误:未找到书籍";
+		case bookNotFound:
+			return "错误:未找到书籍";
 		case bookInaccessible:
 			return "错误:不可查看该书籍";
 		case noError:
@@ -142,7 +142,7 @@ void ReaderController::bookToPractical(const Book &book)
 	infoPracticalBook();
 }
 
-string ReaderController::borrowBook(const Book &book)//点击操作
+string ReaderController::borrowBook(const Book &book)
 {
 	bookToPractical(book);
 	for(auto i:practicalBooks)
@@ -164,9 +164,9 @@ Record ReaderController::getRecord(int number)
 }
 
 template<class ObjType>
-void ReaderController::show(const ObjType &object)//点击一下,深度显示一个对象(操作).每"显示"一个对象,就把其所有的explicitkey全部推到里面去.
+void ReaderController::show(const ObjType &object)
 {
-	deepInfo.clear();//每次只展示一个对象
+	deepInfo.clear();
 	vector<string> temp=object.explicitKey();
 	for(string i:temp)
 	{
@@ -193,13 +193,12 @@ string ReaderController::listBorrowingBooks(const User &_user)
 	return "共借阅"+ss.str()+"本书";
 }
 
-string ReaderController::returnBook(PracticalBook book)//点击操作
+string ReaderController::returnBook(PracticalBook book)
 {
 	ErrorCode errorcode=server->returnBook(user,book);
 	switch(errorcode)
 	{
-		//case bookNotFound:
-			//return "错误,未找到书籍"; //留给后续支持
+		
 		case bookNotBorrowed:
 			return "错误,该书籍未被借阅";
 		default:
@@ -207,10 +206,10 @@ string ReaderController::returnBook(PracticalBook book)//点击操作
 	}
 }
 
-string ReaderController::modifyPassword(string password1,string password2)//只有进入才能修改密码!
+string ReaderController::modifyPassword(string password1,string password2)
 {
 	if(password1!=password2)
-		return "两次密码不一致请重输";//再次输入密码检验
+		return "两次密码不一致请重输";
 	server->modifyPassword(user,Password(password1));
 		return "成功修改密码";
 }
@@ -233,8 +232,6 @@ string ReaderController::readRecord(User _user)
 	}
 }
 
-//AdminController部分
-
 string AdminController::type()
 {
 	return "Administrator";
@@ -255,7 +252,7 @@ User AdminController::getUser(int number)
 	return users[number-1];
 }
 
-string AdminController::findUser(const string &username)//通过ID或者真名查找用户(非管理员),(保证username是unique的)?
+string AdminController::findUser(const string &username)
 {
 	info.clear();
 	CompleteMatchingSearch key=CompleteMatchingSearch(multiset<Field>{Field("Username",username)});
@@ -267,7 +264,7 @@ string AdminController::findUser(const string &username)//通过ID或者真名�
 	return "共发现"+ss.str()+"位用户";
 }
 
-string AdminController::registerUser(const string &username,const string &password,string identity)//从vector<>command里面提供材料
+string AdminController::registerUser(const string &username,const string &password,string identity="Reader")
 {
 	User _user=User(username,password);
 	if(identity!="Root"||identity!="Administrator")
@@ -284,7 +281,7 @@ string AdminController::registerUser(const string &username,const string &passwo
 	}
 }
 
-string AdminController::addBook(Book &book)//从原来的书本中加书
+string AdminController::addBook(Book &book)
 {
 	bookToPractical(book);
 	int j=practicalBooks.size();
@@ -324,7 +321,7 @@ string AdminController::showPendingBook()
 	return "共发现"+ss.str()+"本需要处理的书";
 }
 
-string AdminController::deal(Record record,bool accept)//管理员接受处理借书请求
+string AdminController::deal(Record record,bool accept)
 {
 	ErrorCode errorCode;
 	if(accept==1)
@@ -345,7 +342,7 @@ string AdminController::deal(Record record,bool accept)//管理员接受处理�
 
 string AdminController::editBook(Book book)
 {
-	vector<string> s=book.explicitKey();//除了No之外的都可以修改
+	vector<string> s=book.explicitKey();
 	for(int i=1;i<6;i++)
 	{
 		if(commands[i-1]!="-")
@@ -382,7 +379,7 @@ string AdminController::showFreezeUser()
 }
 
 template<class ObjType>
-string AdminController::freeze(ObjType obj)//冻结书籍或者用户专用
+string AdminController::freeze(ObjType obj)
 {
 	ErrorCode err=server->freeze(user,obj);
 	switch(err){
@@ -468,8 +465,3 @@ string RootController::removePracticalBook(PracticalBook practicalBook)
 	}
 }
 
-//string RootController::modify()
-//在其他人用引用的时候自己不要用指针,因为在这样的时候,很多操作不能用指针来做(比如很多重载)!
-
-//=====================Gu Gu Gu!========================================================
-//string AdminController::higherrecord()"需要新的问题!"
