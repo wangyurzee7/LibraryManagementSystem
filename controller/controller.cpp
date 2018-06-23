@@ -2,49 +2,46 @@
 #include "controller.h"
 using namespace std;
 
-AbstractController::~AbstractController()
-{
-		if(finalQuit)//保证登录成功退出LoginController的时候不会删除服务器和用户
-		{
-			delete user;
-		}
-	}
-
-User* AbstractController::getUser()
+User AbstractController::getSelf()
 {
 	return user;
 }
 
-vector<string> login(const string &userName,const string &passWord);//LoginController中的update是登录的操作,先把用户名和密码明文打包成vector
+vector<string> LoginController::login(const string &userName,const string &password)
 {
-	user= new User(userName,passWord);
-	commands.clear();
-	ErrorCode errorcode=server->userlogin(*user);
-	if(errorcode==noError)
-	{	finalQuit=0;
-		return {"登录成功,您的身份是"+user["Role"],
-		user["Role"]};
+	user=User(userName,password);
+	ErrorCode errorCode=server->userLogin(user);
+	if(errorCode==noError)
+	{	
+		vector<string> cmds;
+		cmds.push_back("登录成功,您的角色是"+user["Role"]);
+		cmds.push_back(user["Role"]);
+		return cmds;
 	}
 	else
 	{
-		delete user;
-		vector<string> cmd;
-		cmd.push_back("错误");
-		switch(errorcode){
+		vector<string> cmds;
+		cmds.push_back("错误");
+		switch(errorCode){
 		case noSuchUser:
-			cmd.push_back("并没有这个用户");
+			cmds.push_back("并没有这个用户");
 		case wrongPassword:
-			cmd.push_back("密码错误");
+			cmds.push_back("密码错误");
 		case loginFailed:
-			cmd.push_back("用户被冻结");
+			cmds.push_back("用户被冻结");
 			}
-		return cmd;
+		return cmds;
 		}
 	}
 	
+string ReaderController::type()
+{
+	return "Reader";
+}
+
 void ReaderController::infoBook()
 {
-	for(Book j:books)//列表内只显示名字/出版社
+	for(Book j:books)
 		{
 			info.push_back(j["Name"]);
 			info.push_back(j["Author"]);
@@ -54,7 +51,7 @@ void ReaderController::infoBook()
 
 void ReaderController::infoPracticalBook()
 {
-	for(Book j:practicalBooks)//列表内只显示名字/出版社
+	for(PracticalBook j:practicalBooks)
 		{
 			info.push_back(j["No"]);
 			info.push_back(j["Index"]);
@@ -73,44 +70,51 @@ void ReaderController::infoRecord()
 	}
 }
 	
-Book ReaderController::getBook(int number);
+Book ReaderController::getBook(int number)
 {
 	return books[number-1];
 }
 
-string ReaderController::searchBook();//找书,关键信息全部输入commands里
+string ReaderController::searchBook()
 {
 	info.clear();
-	if(command.size()==1)
-		server->search(*user,multiset<Field>{Field("Name",commands[0])},books);
-	else //如果点击"高级搜索"则在commands里push一个"others",你可以给出一张页面(输入不同方法检索串的bar)
+	if(commands.size()==1)
+	{	ReSearch key=ReSearch(multiset<Field>{Field("Name",commands[0])});
+		server->search(user,key,books);}
+	else //你可以给出一张页面(输入不同方法检索串的bar)
 	{
-		for(string i:commands)
-		{	if(i=="-")
-				i="";
+		vector<string>s=Book().explicitKey();
+		multiset<Field> searchKey;
+		for(int i=0;i<6;i++)
+		{
+			if(commands[i]!="-")
+				searchKey.insert(searchKey.end(),Field(s[i],commands[i]));
 			}
-		server->search(*user,multiset<Field>{Field("No",commands[0]),Field("Name",commands[1]),Field("Author",commands[2]),Field("ISBN",commands[3]),Field("Publisher",commands[4]),Field("Remarks",commands[5])},books);//分词怎么分?最好用
-		}//使用完命令即删除
-		int i=books.size();
+			ReSearch key=ReSearch(searchKey);
+			server->search(user,key,books);
+			commands.clear();
+		}
 		infoBook();
-		return "共发现"+int2str(i)+"种书";
+		int i=books.size();
+		stringstream ss;ss<<i;
+		return "共发现"+ss.str()+"种书";
 }
 
-string ReaderController::browseBook(const Book &book)
+string ReaderController::browseBook(Book &book)
 {
 	info.clear();
-	ErrorCode err=server->browseBook(*user,book);
+	ErrorCode err=server->browseBook(user,book);
 	switch(err)
 	{
-		//case bookNotFound:
-			//return "错误:未找到书籍";
+		case bookNotFound:
+			return "错误:未找到书籍";
 		case bookInaccessible:
 			return "错误:不可查看该书籍";
 		case noError:
 			{
 				Content *content;
-				ErrorCode errorcode=server->previewBookContent(*user,book,content);
-				switch(errorcode):
+				ErrorCode errorCode=server->previewBookContent(user,book,content);
+				switch(errorCode)
 				{
 					case unknownContentSuffix:
 						return "错误:格式不支持";
@@ -127,22 +131,24 @@ string ReaderController::browseBook(const Book &book)
 
 PracticalBook ReaderController::getPracticalBook(int number)
 {
-	return books[number-1];
+	return practicalBooks[number-1];
 }
 
-string ReaderController::bookToPractical(const Book &book)
+void ReaderController::bookToPractical(const Book &book)
 {
 	info.clear();
-	server->search(*user,multiset<Field>{Field("No",book["No"]),practicalBooks});
+	CompleteMatchingSearch key=CompleteMatchingSearch(multiset<Field>{Field("No",book["No"])});
+	server->search(user,key,practicalBooks);
 	infoPracticalBook();
 }
 
-string ReaderController::borrowBook(const Book& book)//点击操作
+string ReaderController::borrowBook(const Book &book)
 {
+	bookToPractical(book);
 	for(auto i:practicalBooks)
 	{
-		ErrorCode errorcode=server->borrowBook(*user,i);
-		if(errorcode==noError||errorCode==requestAlreadyProcessed)
+		ErrorCode errorCode=server->borrowBook(user,i);
+		if(errorCode==noError||errorCode==requestAlreadyProcessed)
 		{
 			practicalBooks.clear();
 			return "已发出借阅请求";
@@ -152,46 +158,47 @@ string ReaderController::borrowBook(const Book& book)//点击操作
 }
 
 
-Record ReaderController::getRecord(int number);
+Record ReaderController::getRecord(int number)
 {
-	return record[number-1];
+	return records[number-1];
 }
 
 template<class ObjType>
-void ReaderController::show(const ObjType &vect)//点击一下,深度显示一个对象(操作).每"显示"一个对象,就把其所有的explicitkey全部推到里面去.
+void ReaderController::show(const ObjType &object)
 {
-	deepInfo.clear();//每次只展示一个对象
-	vector<string> temp=vect.explicitKey();
+	deepInfo.clear();
+	vector<string> temp=object.explicitKey();
 	for(string i:temp)
 	{
 		deepInfo.push_back(i);
-		deepInfo.push_back(ObjType[i]);
+		deepInfo.push_back(object[i]);
 	}
 }
 
-string ReaderController::listBorrowingBooks(User *_user)
+string ReaderController::listBorrowingBooks(const User &_user)
 {
 	info.clear();
 	practicalBooks.clear();
 	vector<string> s;
-	server->search(*_user,multiset<Field>{Field("Username",currentUser["Username"]),Field("Status","Accepted"),},records);
+	CompleteMatchingSearch key=CompleteMatchingSearch(multiset<Field>{Field("Username",(_user["Username"])),Field("Status","Accepted")});
+	server->search(_user,key,records);
 	for(auto i:records)
-	{
-		server->search(*_user,multiset<Field>{Field("No",i["BookNo"]),Field("BookIndex",i["BookIndex"])},s);
+	{	CompleteMatchingSearch practicalBookKey=CompleteMatchingSearch(multiset<Field>{Field("No",i["BookNo"]),Field("BookIndex",i["BookIndex"])});
+		server->search(_user,practicalBookKey,s);
 		practicalBooks.push_back(s[0]);
 	}
 	infoRecord();
 	int j=practicalBooks.size();
-	return "共借阅"+int2str(j)+"本书"
+	stringstream ss;ss<<j;
+	return "共借阅"+ss.str()+"本书";
 }
 
-string ReaderController::returnBook(const PracticalBook &book)//点击操作
+string ReaderController::returnBook(PracticalBook book)
 {
-	ErrorCode errorcode=server->returnBook(*user,Book)
+	ErrorCode errorcode=server->returnBook(user,book);
 	switch(errorcode)
 	{
-		//case bookNotFound:
-			//return "错误,未找到书籍"; //留给后续支持
+		
 		case bookNotBorrowed:
 			return "错误,该书籍未被借阅";
 		default:
@@ -199,33 +206,36 @@ string ReaderController::returnBook(const PracticalBook &book)//点击操作
 	}
 }
 
-string ReaderController::modifyPassword(string password1,string password2)//只有进入才能修改密码!
+string ReaderController::modifyPassword(string password1,string password2)
 {
 	if(password1!=password2)
-		return "两次密码不一致请重输";//再次输入密码检验
-	server->modifyPassword(*user,Password(password1));
+		return "两次密码不一致请重输";
+	server->modifyPassword(user,Password(password1));
 		return "成功修改密码";
 }
 
-string ReaderController::readRecord(User *_user)
+string ReaderController::readRecord(User _user)
 {
 	info.clear();
-	ErrorCode err=server->search(*_user,multiset<Field>{Field("Username",(*use)["Username"])},record)
-	switch (err)
+	CompleteMatchingSearch key=CompleteMatchingSearch(multiset<Field>{Field("Username",_user["Username"])});
+	ErrorCode errorCode=server->search(_user,key,records);
+	switch (errorCode)
 	{
 	case permissionDenied:
 		return "您无权读取此用户的历史记录";
 	case noError:
-		inforcd();
-		int i=record.size();
-		return "共发现"+int2str(i)+"条历史记录";
+		infoRecord();
+		int i=records.size();
+		stringstream ss;
+		ss<<i;
+		return "共发现"+ss.str()+"条历史记录";
 	}
 }
 
-//AdminController部分
-
-
-
+string AdminController::type()
+{
+	return "Administrator";
+}
 
 void AdminController::infoUser()
 {
@@ -242,26 +252,25 @@ User AdminController::getUser(int number)
 	return users[number-1];
 }
 
-string AdminController::findUser()//通过ID或者真名查找用户(非管理员),(保证username是unique的)?
+string AdminController::findUser(const string &username)
 {
 	info.clear();
-	for(string i:commands)
-		{	
-			if(i=="-")
-			i="";
-		}
-	server->search(*user,multiset<Field>{Field("Username",commands[0]),Field("Realname",commands[1])},users);
+	CompleteMatchingSearch key=CompleteMatchingSearch(multiset<Field>{Field("Username",username)});
+	server->search(user,key,users);
 	infoUser();
 	int j=users.size();
-	return "共发现"+int2str(j)+"位用户";
+	stringstream ss;
+	ss<<j;
+	return "共发现"+ss.str()+"位用户";
 }
 
-string AdminController::registerUser()//从vector<>command里面提供材料
+string AdminController::registerUser(const string &username,const string &password,string identity="Reader")
 {
-	User user=User(commands[0],commands[1]);
-	user.update("Role",commands[2]);//commands[2]里存放身份,在client操作(前端衔接)的时候直接补
-	ErrorCode errorcode=server->add(user);
-	commands.clear();//踢去这种command
+	User _user=User(username,password);
+	if(identity!="Root"||identity!="Administrator")
+		identity="Reader";
+	_user.update("Role",identity);//commands[2]里存放身份,在client操作(前端衔接)的时候直接补(如果command2没有操作或输入错误的话,那么默认是reader)
+	ErrorCode errorcode=server->add(user,_user);
 	switch(errorcode){
 		case invalidInfo:
 			return "信息无效";
@@ -272,12 +281,13 @@ string AdminController::registerUser()//从vector<>command里面提供材料
 	}
 }
 
-string AdminController::addBook(const Book &book)//从原来的书本中加书
+string AdminController::addBook(Book &book)
 {
 	bookToPractical(book);
 	int j=practicalBooks.size();
-	PracticalBook practicalBook=PracticalBook(book["No"],int2str(j+2));
-	ErrorCode errorcode=server->add(practicalBook);
+	stringstream ss; ss<<j+2;
+	PracticalBook practicalBook=PracticalBook(book["No"],ss.str());
+	ErrorCode errorcode=server->add(user,practicalBook);
 	switch(errorcode)
 	{
 		case invalidInfo:
@@ -297,26 +307,28 @@ string AdminController::addNewBook()
 	{
 		book.update(s[i],commands[i]);
 	}
-	server->add(book);
+	server->add(user,book);
 	addBook(book);
 }
 
 string AdminController::showPendingBook()
 {	
 	info.clear();
-	ErrorCode err=server->search(*user,multiset<Field>{Field("Status","Pending")},record);
+	ErrorCode err=server->search(user,CompleteMatchingSearch(multiset<Field>{Field("Status","Pending")}),records);
 	infoRecord();
 	int i=records.size();
-	return "共发现"+int2str(i)+"本需要处理的书";
+	stringstream ss;ss<<i;
+	return "共发现"+ss.str()+"本需要处理的书";
 }
 
-string AdminController::deal(const Record& record,bool accept)//管理员接受处理借书请求
+string AdminController::deal(Record record,bool accept)
 {
+	ErrorCode errorCode;
 	if(accept==1)
-		ErrorCode err=server->acceptRequest(*user,record);
+		errorCode=server->acceptRequest(user,record);
 	else
-		ErrorCode err=server->rejectRequest(*user,record);
-	switch(err)
+		errorCode=server->rejectRequest(user,record);
+	switch(errorCode)
 	{
 		case requestNotFound:
 			return "错误:未找到可操作记录";
@@ -328,15 +340,17 @@ string AdminController::deal(const Record& record,bool accept)//管理员接受�
 	}
 }
 
-string AdminController::editBook(const Book &book)
+string AdminController::editBook(Book book)
 {
 	vector<string> s=book.explicitKey();
 	for(int i=1;i<6;i++)
 	{
-		book.update(s[i],command[i-1]);
+		if(commands[i-1]!="-")
+			book.update(s[i],commands[i-1]);
 	}
-	ErrorCode errorcode=server->update(*user,book);
-	switch(errorcode)
+	ErrorCode errorCode=server->update(user,book);
+	commands.clear();//
+	switch(errorCode)
 	{
 		case permissionDenied:
 			return "您无权限修改此书籍信息";
@@ -345,10 +359,29 @@ string AdminController::editBook(const Book &book)
 	}
 }
 
-template<class ObjType>
-string AdminController::freeze(const ObjType &obj)//冻结书籍或者用户专用
+string AdminController::showFreezeBook()
 {
-	ErrorCode err=server->freeze(*user,obj);
+	info.clear();
+	server->search(user,CompleteMatchingSearch(multiset<Field>{Field("Status","Frozen")}),practicalBooks);
+	infoPracticalBook();
+	int j=practicalBooks.size();
+	stringstream ss;ss<<j;
+		return "共发现"+ss.str()+"本被冻结的书";
+}
+
+string AdminController::showFreezeUser()
+{
+	server->search(user,CompleteMatchingSearch(multiset<Field>{Field("Status","Frozen")}),users);
+	infoUser();
+	int j=users.size();
+	stringstream ss;ss<<j;
+		return "共发现"+ss.str()+"个被冻结的用户";
+}
+
+template<class ObjType>
+string AdminController::freeze(ObjType obj)
+{
+	ErrorCode err=server->freeze(user,obj);
 	switch(err){
 	case objectNotAccessible:
 		return "对象不可被冻结";
@@ -361,44 +394,26 @@ string AdminController::freeze(const ObjType &obj)//冻结书籍或者用户专�
 	}
 } 
 
-string AdminController::showFreezeBook()
+string AdminController::readBookRecord(const PracticalBook &practicalBook)
 {
 	info.clear();
-	server->search(*user,multiset<Field>{Field("Status","Frozen")},practicalBooks);
-	infoPracticalBook();
-	int j=practicalBooks.size();
-		return "共发现"+int2str(j)+"本被冻结的书";
-}
-
-string AdminController::showFreezeUser()
-{
-	server->search(*user,multiset<Field>{Field("Status","Frozen")},users);
-	infoUser();
-	int j=users.size();
-		return "共发现"+int2str(j)+"个被冻结的用户";
-}
-
-string AdminController::readBookRecord(const PracticalBook &prbook)
-{
-	info.clear();
-	ErrorCode err=server->search(*user,multiset<Field>{Field("BookNo",prbook["BookNo"]),
-			Field("BookIndex",prbook["BookIndex"])},records)
-	//switch (err)
-	//{
-	//case permissionDenied:
-		//return "您无权读取此书的历史记录";
+	ErrorCode err=server->search(user,CompleteMatchingSearch(multiset<Field>{Field("BookNo",practicalBook["No"]),Field("BookIndex",practicalBook["Index"])}),records);
+	switch (err)
+	{
+	case permissionDenied:
+		return "您无权读取此书的历史记录";
 	case noError:
 		infoRecord();
 		int i=records.size();
-		return "共发现"+int2str(i)+"条历史记录";
-	//}
+		stringstream ss;ss<<i;
+		return "共发现"+ss.str()+"条历史记录";
+	}
 }
 
-
 template<class ObjType>
-string AdminController::unfreeze(const ObjType &obj)
+string AdminController::unfreeze(ObjType obj)
 {
-	ErrorCode err=server->unfreeze(*user,obj);
+	ErrorCode err=server->unfreeze(user,obj);
 	switch(err){
 	case objectNotAccessible:
 		return "对象未被冻结";
@@ -411,17 +426,42 @@ string AdminController::unfreeze(const ObjType &obj)
 	}
 }
 
-
-template<class ObjType>
-string RootController::remove(const ObjType &obj)
+string RootController::type()
 {
-	server->remove(*user,obj);
-		return "移除成功";
+	return "Root";
 }
 
-//string RootController::modify()
+template<class ObjType>
+string RootController::removeObject(ObjType obj)
+{
+	ErrorCode errorCode=server->remove(user,obj);
+	switch(errorCode)
+	{
+		case permissionDenied:
+			return "删除失败,您没有root权限";
+		case loginAgain:
+			return "您已掉线,请重新登录";
+		case noError:
+			return "成功删除";
+	}
+}
 
-//=====================Gu Gu Gu!========================================================
-//string AdminController::higherrecord()"需要新的问题!"
+string RootController::removeUser(User user)
+{
+	return removeObject(user);
+	}
 
+string RootController::removePracticalBook(PracticalBook practicalBook)
+{
+	string result=removeObject(practicalBook);
+	if(result!="成功删除")
+		return result;
+	else
+	{
+	server->search(user,CompleteMatchingSearch(multiset<Field>{Field("No",practicalBook["No"])}),practicalBooks);
+	if(practicalBooks.empty())
+		server->search(user,CompleteMatchingSearch(multiset<Field>{Field("No",practicalBook["No"])}),books);
+	return removeObject(books[0]);
+	}
+}
 
