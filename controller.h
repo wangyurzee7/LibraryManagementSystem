@@ -7,7 +7,7 @@ tips: every information return will in the form of string
 **************************************************/  
 #include <bits/stdc++.h>
 
-#include "../server.h"
+#include "server.h"
 
 using namespace std;
 

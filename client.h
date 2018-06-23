@@ -1,5 +1,5 @@
 #include<bits/stdc++.h>
-#include "../controller/controller.h"
+#include "controller.h"
 using namespace std;
 
 class Client

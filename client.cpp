@@ -14,7 +14,7 @@ string Client::login()
 			return s[1];
 		}
 		else
-		{	cout<<s[0]<<","s[1]<<endl;
+		{	cout<<s[0]<<","<<s[1]<<endl;
 			cout<<"是否退出?Y/N"<<endl;
 			char quit;
 			cin >> quit;

@@ -1,6 +1,7 @@
 # Build options
 CC=g++
-CFLAGS=-std=c++11 -I/usr/local/include/mongocxx/v_noabi -I/usr/local/include/bsoncxx/v_noabi -L/usr/local/lib -lmongocxx -lbsoncxx
+CFLAGS=-std=c++11
+DBFLAGS=-I/usr/local/include/mongocxx/v_noabi -I/usr/local/include/bsoncxx/v_noabi -L/usr/local/lib -lmongocxx -lbsoncxx
 
 
 all: .CORE .SERVER .CLIENT
@@ -53,20 +54,21 @@ CORE_H=object/*.h object/password/*.h content/*.h
 .SERVER: database.o server.o
 
 database.o: database.cpp database.h object/user.h object/book.h object/practicalbook.h object/record.h object/object.h object/field.h object/abstractobject.h object/password/password.h object/search.h errorcode.h
-	${CC} ${CFLAGS} -c $< -o $@
+	${CC} ${CFLAGS} ${DBFLAGS} -c $< -o $@
 
 SERVER_H=server.h errorcode.h
 
 server.o: server.cpp server.h database.h ${CORE_H}
-	${CC} ${CFLAGS} -c $< -o $@
+	${CC} ${CFLAGS} ${DBFLAGS} -c $< -o $@
 
 # Client Build targets
-.CLIENT: controller.o
+.CLIENT: controller.o client.o
 
-controller.o: controller/controller.cpp controller/controller.h ${CORE_H} ${SERVER_H}
+controller.o: controller.cpp controller.h ${CORE_H} ${SERVER_H}
 	${CC} ${CFLAGS} -c $< -o $@
 
-
+client.o: client.cpp client.h controller.h ${CORE_H}
+	${CC} ${CFLAGS} -c $< -o $@
 
 clean:
 	rm *.o
