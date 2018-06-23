@@ -9,11 +9,11 @@ using namespace std;
 namespace LMS{
 
 void __main__(){
-	Database db=new Database("TestLMS");
-	Server server=new Server(db);
-	Client client=new Client(server);
+	Database* db=new Database("TestLMS");
+	Server* server=new Server(db);
+	Client* client=new Client(server);
 
-	client.main();
+	client->main();
 
 	delete client;
 	delete server;

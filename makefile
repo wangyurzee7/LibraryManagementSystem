@@ -4,7 +4,9 @@ CFLAGS=-std=c++11
 DBFLAGS=-I/usr/local/include/mongocxx/v_noabi -I/usr/local/include/bsoncxx/v_noabi -L/usr/local/lib -lmongocxx -lbsoncxx
 
 
-all: .CORE .SERVER .CLIENT
+all: main
+
+all_o: .CORE .SERVER .CLIENT main.o
 
 # Core Build targets
 .CORE: field.o abstractobject.o object.o md5.o encryptor.o password.o user.o book.o practicalbook.o record.o content.o txtcontent.o search.o
@@ -70,5 +72,14 @@ controller.o: controller.cpp controller.h ${CORE_H} ${SERVER_H}
 client.o: client.cpp client.h controller.h ${CORE_H}
 	${CC} ${CFLAGS} -c $< -o $@
 
+# Main Build targets
+main.o: main.cpp database.h server.h client.h
+	${CC} ${CFLAGS} ${DBFLAGS} -c $< -o $@
+
+ALL_O=./*.o
+main: all_o
+	${CC} ${CFLAGS} ${DBFLAGS} ${ALL_O} -o $@
+
+# Clean targets
 clean:
 	rm *.o
