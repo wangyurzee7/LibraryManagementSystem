@@ -1,5 +1,6 @@
 #include <bits/stdc++.h>
 
+#include "database.h"
 #include "object/object.h"
 #include "object/user.h"
 #include "object/book.h"
@@ -19,7 +20,7 @@ using namespace std;
 #pragma once
 class Server{
 private:
-	class Database* db;
+	Database* db;
 	string getTime();
 public:
 	Server(Database* ptr);
@@ -61,3 +62,224 @@ public:
 	
 	ErrorCode previewBookContent(const User& currentUser,Book book,Content *ret);
 };
+
+
+template<typename ObjType>
+ErrorCode Server::search(const User &currentUser,const Search& key,vector<ObjType> &ret){
+	if (!key.invalidFields().empty()) return invalidKey;
+	
+	if (!db->userExist(currentUser)) return loginAgain;
+	
+	bool authority=0;
+	string objType=ObjType().typeName();
+	if (objType=="User"){
+		authority=db->isAdmin(currentUser)||currentUser["username"]==key["username"];
+	}
+	else if (objType=="Book"){
+		authority=1;
+	}
+	else if (objType=="PracticalBook"){
+		authority=1;
+	}
+	else if (objType=="Record"){
+		authority=db->isAdmin(currentUser)||currentUser["username"]==key["username"];
+	}
+	
+	if (authority){
+		ret.clear();
+		ErrorCode errorCode=db->search(key,ret);
+		if (key["Status"]==""){
+			for (auto it=ret.begin();it!=ret.end();++it)
+				if ((*it)["Status"]=="Frozen"){
+					swap(*it,ret.back());
+					ret.pop_back();
+				}
+		}
+		return errorCode;
+	}
+	else{
+		return permissionDenied;
+	}
+}
+
+
+
+template<typename ObjType>
+ErrorCode Server::add(const User &currentUser,ObjType obj){
+	if (!obj.invalidFields().empty()) return invalidInfo;
+	
+	if (!db->userExist(currentUser)) return loginAgain;
+	
+	bool authority=0;
+	string objType=ObjType().typeName();
+	if (objType=="User"){
+		string role=obj["Role"];
+		if (role=="Reader"){
+			authority=db->isAdmin(currentUser);
+		}
+		else if (role=="Admin"){
+			authority=db->isRoot(currentUser);
+		}
+		else if (role=="Root"){
+			authority=0;
+		}
+	}
+	else if (objType=="Book"){
+		authority=db->isAdmin(currentUser);
+	}
+	else if (objType=="PracticalBook"){
+		authority=db->isAdmin(currentUser);
+	}
+	else if (objType=="Record"){
+		authority=0;
+	}
+	
+	if (authority){
+		obj.update("Status","Accessible");
+		return db->add(obj);
+	}
+	else{
+		return permissionDenied;
+	}
+}
+
+
+
+template<typename ObjType>
+ErrorCode Server::update(const User &currentUser,ObjType obj){
+	if (!obj.invalidFields().empty()) return invalidInfo;
+	
+	if (!db->userExist(currentUser)) return loginAgain;
+	
+	bool authority=0;
+	string objType=ObjType().typeName();
+	if (obj["Status"]!="") authority=db->isRoot(currentUser);
+	else if (objType=="User"){
+		if (currentUser["username"]==obj["username"])
+			authority=1;
+		else{
+			string role=obj["Role"];
+			if (role=="Reader"){
+				authority=db->isAdmin(currentUser);
+			}
+			else if (role=="Admin"){
+				authority=db->isRoot(currentUser);
+			}
+			else if (role=="Root"){
+				authority=0;
+			}
+		}
+	}
+	if (objType=="Book"){
+		authority=db->isAdmin(currentUser);
+	}
+	if (objType=="PracticalBook"){
+		authority=db->isAdmin(currentUser);
+	}
+	if (objType=="Record"){
+	
+	authority=db->isRoot(currentUser);
+	}
+	
+	if (authority){
+		return db->update(obj);
+	}
+	else{
+		return permissionDenied;
+	}
+}
+
+template<typename ObjType>
+ErrorCode Server::remove(const User &currentUser,const ObjType &obj){
+	if (!db->userExist(currentUser)) return loginAgain;
+	
+	bool authority=db->isRoot(currentUser);
+	
+	if (authority){
+		return db->update(obj);
+	}
+	else{
+		return permissionDenied;
+	}
+}
+
+
+template<typename ObjType>
+ErrorCode Server::freeze(const User &currentUser,ObjType obj){
+	if (!db->findOne(obj)) return objectNotFound;
+	if (obj["Status"]!="Accessible") return objectNotAccessible;
+	
+	if (!db->userExist(currentUser)) return loginAgain;
+	
+	bool authority=0;
+	string objType=ObjType().typeName();
+	if (objType=="User"){
+		string role=obj["Role"];
+		if (role=="Reader"){
+			authority=db->isAdmin(currentUser);
+		}
+		else if (role=="Admin"){
+			authority=db->isRoot(currentUser);
+		}
+		else if (role=="Root"){
+			authority=0;
+		}
+	}
+	else if (objType=="Book"){
+		authority=db->isAdmin(currentUser);
+	}
+	else if (objType=="ParcticalBook"){
+		authority=db->isAdmin(currentUser);
+	}
+	else if (objType=="Record"){
+		authority=0;
+	}
+	
+	if (authority){
+		obj.update("Status","Frozen");
+		return db->update(obj);
+	}
+	else{
+		return permissionDenied;
+	}
+}
+
+template<typename ObjType>
+ErrorCode Server::unfreeze(const User &currentUser,ObjType obj){
+	if (!db->findOne(obj)) return objectNotFound;
+	if (obj["Status"]!="Frozen") return objectNotAccessible;
+	
+	if (!db->userExist(currentUser)) return loginAgain;
+	
+	bool authority=0;
+	string objType=ObjType().typeName();
+	if (objType=="User"){
+		string role=obj["Role"];
+		if (role=="Reader"){
+			authority=db->isAdmin(currentUser);
+		}
+		else if (role=="Admin"){
+			authority=db->isRoot(currentUser);
+		}
+		else if (role=="Root"){
+			authority=0;
+		}
+	}
+	else if (objType=="Book"){
+		authority=db->isAdmin(currentUser);
+	}
+	else if (objType=="ParcticalBook"){
+		authority=db->isAdmin(currentUser);
+	}
+	else if (objType=="Record"){
+		authority=0;
+	}
+	
+	if (authority){
+		obj.update("Status","Accessible");
+		return db->update(obj);
+	}
+	else{
+		return permissionDenied;
+	}
+}

@@ -5,7 +5,7 @@
 using namespace std;
 
 #include "abstractobject.h"
-
+/*
 template<class Container>
 AbstractObject<Container>::AbstractObject():attribute(){}
 
@@ -33,6 +33,7 @@ template<class Container>
 void AbstractObject<Container>::update(const string& key,const string& value){
 	this->update(Field(key,value));
 }
+*/
 
 string FormatInfo::typeName() const{
 	return "FormatInfo";

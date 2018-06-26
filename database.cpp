@@ -1,12 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-#include <bsoncxx/builder/stream/document.hpp>
-#include <bsoncxx/json.hpp>
-
-#include <mongocxx/client.hpp>
-#include <mongocxx/instance.hpp>
-
 #include "database.h"
 
 Database::Database(const string& _name):dbName(_name){
@@ -17,7 +11,7 @@ Database::Database(const string& _name):dbName(_name){
 		add(User("root","root"));
 }
 
-document toDocument(const Object &obj){
+document Database::toDocument(const Object &obj){
 	document doc;
 	for (int k=0;k<2;++k)for (auto key:(k?obj.explicitKey():obj.implicitKey())){
 		if (obj[key]!="")
@@ -25,7 +19,7 @@ document toDocument(const Object &obj){
 	}
 	return doc;
 }
-document toDocument(const Search &obj){
+document Database::toDocument(const Search &obj){
 	document doc;
 	for (auto ele:obj.fields()){
 		string strategy=obj.strategyName();
@@ -39,18 +33,18 @@ document toDocument(const Search &obj){
 	return doc;
 }
 
-document toDocumentForFind(const Object &obj){
+document Database::toDocumentForFind(const Object &obj){
 	document doc;
 	for (auto key:obj.uniqueKey()) doc<<key<<obj[key];
 	return doc;
 }
-document toCompleteDocument(const Object &obj){
+document Database::toCompleteDocument(const Object &obj){
 	document doc;
 	for (int k=0;k<2;++k)for (auto key:(k?obj.explicitKey():obj.implicitKey()))
 		doc<<key<<obj[key];
 	return doc;
 }
-document toCompleteDocument(const User &obj){
+document Database::toCompleteDocument(const User &obj){
 	document doc;
 	for (int k=0;k<2;++k)for (auto key:(k?obj.explicitKey():obj.implicitKey()))
 		doc<<key<<obj[key];
@@ -149,55 +143,4 @@ ErrorCode Database::modifyPassword(const User& user,const Password& newPwd){
 		return noError;
 	}
 	else return userNotFound;
-}
-
-template<typename ObjType>
-ErrorCode Database::add(const ObjType &obj){
-	auto collection=db[obj.typeName()];
-	if (collection.find_one(toDocumentForFind(obj).view())) return objectExists;
-	
-	document doc=toCompleteDocument(obj);
-	
-	collection.insert_one(doc.view());
-	return noError;
-}
-template<typename ObjType>
-ErrorCode Database::update(const ObjType& obj){
-	auto collection=db[obj.typeName()];
-	document doc=toDocumentForFind(obj);
-	if (!collection.find_one(doc.view())) return objectNotFound;
-	
-	document newDoc;
-	newDoc<<"$set"<<toDocument(obj);
-	
-	collection.update_one(doc.view(),newDoc.view());
-	return noError;
-}
-template<typename ObjType>
-ErrorCode Database::remove(const ObjType& obj){
-	auto collection=db[obj.typeName()];
-	document doc=toDocumentForFind(obj);
-	if (!collection.find_one(doc.view())) return objectNotFound;
-	
-	collection.remove(doc.view());
-	return noError;
-}
-
-template<typename ObjType>
-ErrorCode Database::search(const Search& key,vector<ObjType> &ret){
-	auto collection=db[ObjType().typeName()];
-	document doc=toDocument(key);
-	
-	auto cursor=collection.find(doc.view());
-	
-	ret.clear();
-	for (auto element:cursor){
-		ObjType obj;
-		for (int k=0;k<2;++k)for (auto key:(k?obj.explicitKey():obj.implicitKey())){
-			obj.update(key,element->view()[key].get_utf8().value);
-		}
-		ret.push_back(obj);
-	}
-	
-	return noError;
 }

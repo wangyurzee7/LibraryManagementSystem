@@ -1,7 +1,7 @@
 # Build options
 CC=g++
-CFLAGS=-std=c++11
-DBFLAGS=-I/usr/local/include/mongocxx/v_noabi -I/usr/local/include/bsoncxx/v_noabi -L/usr/local/lib -lmongocxx -lbsoncxx
+CFLAGS=-std=c++11 -I/usr/local/include/mongocxx/v_noabi -I/usr/local/include/bsoncxx/v_noabi -L/usr/local/lib -lmongocxx -lbsoncxx
+DBFLAGS=
 
 
 all: main
@@ -67,10 +67,10 @@ server.o: server.cpp server.h database.h ${CORE_H}
 .CLIENT: controller.o client.o
 
 controller.o: controller.cpp controller.h ${CORE_H} ${SERVER_H}
-	${CC} ${CFLAGS} -c $< -o $@
+	${CC} ${CFLAGS} ${DBFLAGS} -c $< -o $@
 
 client.o: client.cpp client.h controller.h ${CORE_H}
-	${CC} ${CFLAGS} -c $< -o $@
+	${CC} ${CFLAGS} ${DBFLAGS} -c $< -o $@
 
 # Main Build targets
 main.o: main.cpp database.h server.h client.h
@@ -78,7 +78,16 @@ main.o: main.cpp database.h server.h client.h
 
 ALL_O=./*.o
 main: all_o
-	${CC} ${CFLAGS} ${DBFLAGS} ${ALL_O} -o $@
+	# ${CC} ${CFLAGS} *.cpp object/*.cpp content/*.cpp object/password/*.cpp -o $@
+	${CC} ${ALL_O} ${CFLAGS} ${DBFLAGS} -o $@
+
+test: all_o
+	${CC} ${CFLAGS} ${DBFLAGS} -c test.cpp -o test.o
+	rm main.o
+	${CC} ${ALL_O} ${CFLAGS} ${DBFLAGS} -o $@
+	rm test.o
+
+
 
 # Clean targets
 clean:
