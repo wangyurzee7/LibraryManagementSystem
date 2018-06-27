@@ -2,6 +2,7 @@
 
 using namespace std;
 
+#define TEST
 #include "database.h"
 #include "server.h"
 #include "client.h"

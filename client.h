@@ -58,6 +58,6 @@ class Client
 	void removeBook (int number);
 	void removeUser (int number);
 	public:
-		Client(Server* _server):server(server){}
+		Client(Server* _server):server(_server){}
 		void main();
 };

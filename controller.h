@@ -16,6 +16,9 @@ class AbstractController{
 		Server *server;
 		User user;
 	public:
+		#ifdef TEST
+		void test(){cout<<"Controller address = "<<this<<endl;server->test();}
+		#endif
 		AbstractController(Server *_server):server(_server){}
 		AbstractController(Server *_server,User _user):server(_server),user(_user){}
 		~AbstractController(){}

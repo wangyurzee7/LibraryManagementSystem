@@ -7,8 +7,13 @@ Database::Database(const string& _name):dbName(_name){
 	client=mongocxx::uri{};
 	db=client[_name];
 	
-	if (!objectExist(User({Field("Role","Root")})))
-		add(User("root","root"));
+	if (!objectExist(User({Field("Role","Root")}))){
+		User root("root","root");
+		root.update("Role","Root");
+		root.update("Status","Accessible");
+		add(root);
+	}
+	
 }
 
 document Database::toDocument(const Object &obj){
@@ -89,7 +94,7 @@ bool Database::isRoot(const User& user){
 
 // Find according to uniqueKey
 bool Database::findOne(Object& obj){
-	auto collection=db[obj.typeName()];
+	auto collection=client[dbName][obj.typeName()];
 	document doc=toDocumentForFind(obj);
 	auto info=collection.find_one(doc.view());
 	if (info&&info->view()["Status"].get_utf8().value!="Frozen"){

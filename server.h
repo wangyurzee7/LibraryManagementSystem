@@ -23,6 +23,9 @@ private:
 	Database* db;
 	string getTime();
 public:
+	#ifdef TEST
+	void test(){cout<<"Server address = "<<this<<endl;db->test();}
+	#endif
 	Server(Database* ptr);
 	template<typename ObjType>
 	ErrorCode search(const User &currentUser,const Search& key,vector<ObjType> &ret);

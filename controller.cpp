@@ -10,6 +10,7 @@ User AbstractController::getSelf()
 vector<string> LoginController::login(const string &userName,const string &password)
 {
 	user=User(userName,password);
+	// user=tmp;
 	ErrorCode errorCode=server->userLogin(user);
 	if(errorCode==noError)
 	{	

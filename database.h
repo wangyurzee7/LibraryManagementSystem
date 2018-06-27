@@ -58,6 +58,9 @@ private:
 	document toCompleteDocument(const User &obj);
 	document toDocumentForFind(const Object &obj);
 public:
+	#ifdef TEST
+	void test(){cout<<"Databse address = "<<this<<endl;cout<<dbName<<endl;}
+	#endif
 	Database(const string& _name="LMS");
 	bool userExist(const User& user); // check "Role" at the same time
 	bool isAdmin(const User& user);

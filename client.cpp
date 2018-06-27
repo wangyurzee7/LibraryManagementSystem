@@ -18,7 +18,7 @@ string Client::login()
 			cout<<"是否退出?Y/N"<<endl;
 			char quit;
 			cin >> quit;
-			if(quit=='Y')
+			if(quit=='Y'||quit=='y')
 				return "退出";
 			else
 				return login();
@@ -431,8 +431,9 @@ void Client::removeUser(int number)
 
 void Client::main()
 {
-	LoginController *loginController=new LoginController(server);
+	loginController=new LoginController(server);
 	string identity=login();
+	// string identity="退出";
 	if(identity=="退出")
 	{
 		delete loginController;
