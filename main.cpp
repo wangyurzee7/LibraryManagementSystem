@@ -9,21 +9,30 @@ using namespace std;
 
 namespace LMS{
 
-void __main__(){
-	Database* db=new Database("TestLMS");
-	Server* server=new Server(db);
-	Client* client=new Client(server);
-
-	client->main();
-
-	delete client;
-	delete server;
-	delete db;
-}
+class LibraryManagementSystem{ // Factory mode.
+private:
+	Database* db;
+	Server* server;
+	Client* client;
+public:
+	LibraryManagementSystem(){
+		db=new Database("TestLMS");
+		server=new Server(db);
+		client=new Client(server);
+	}
+	void __main__(){
+		client->main();
+	}
+	~LibraryManagementSystem(){
+		delete client;
+		delete server;
+		delete db;
+	}
+};
 
 };
 
 int main(){
-	LMS::__main__();
+	LMS::LibraryManagementSystem().__main__();
 	return 0;
 }

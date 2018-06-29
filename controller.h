@@ -16,11 +16,8 @@ class AbstractController{
 		Server *server;
 		User user;
 	public:
-		#ifdef TEST
-		void test(){cout<<"Controller address = "<<this<<endl;server->test();}
-		#endif
-		AbstractController(Server *_server):server(_server){}
-		AbstractController(Server *_server,User _user):server(_server),user(_user){}
+		AbstractController(Server *_server):server(_server){}//正确
+		AbstractController(Server *_server,User _user):server(_server),user(_user){}//正确
 		~AbstractController(){}
 		User getSelf();//拷贝protected成员user
 };
@@ -28,10 +25,9 @@ class AbstractController{
 class LoginController:public AbstractController
 {
 	public:
-		LoginController(Server *_server):AbstractController(_server){}
+		LoginController(Server *_server):AbstractController(_server){}//正确
 		vector<string> login(const string &userName,const string &password);//登录
 };
-
 
 class ReaderController:public AbstractController
 {//找书
@@ -47,10 +43,10 @@ class ReaderController:public AbstractController
 		
 		vector<string> info;//搜索出的object的简要信息存放在这里,controller负责在每次需要用的之前清理
 		vector<string> deepInfo;//一个object的繁琐信息存放在这里,在每次需要用之前清理
-		ReaderController(Server *_server,LoginController *loginController):AbstractController(_server,loginController->getSelf()){}
+		ReaderController(Server *_server,LoginController *loginController):AbstractController(_server,loginController->getSelf()){}//没有问题
 		~ReaderController(){}
 		
-		virtual string type();//返回用户级别
+		string type();//返回用户级别
 		Book getBook(int number);//返回列表第number类书
 		string searchBook();//普通搜索书类
 		string browseBook(Book &book);//浏览一类书
@@ -106,8 +102,8 @@ class AdminController:public ReaderController
 		template<class ObjType>
 			string unfreeze(ObjType obj);//unfreeze函数的骨架
 	public:
-		AdminController(Server *_server,LoginController *loginController):ReaderController(_server,loginController){}
-		virtual string type();
+		AdminController(Server *_server,LoginController *loginController):ReaderController(_server,loginController){}//没有问题
+		//virtual string type();
 		virtual User getUser(int number) ;//返回列表第number个用户
 		virtual string findUser(const string &username);//搜索用户
 		virtual string registerUser(const string &username,const string &password,string identity);//注册一个账号（只能是Reader或者Administrator，默认前者）
@@ -137,7 +133,7 @@ class RootController:public AdminController
 		string removeObject(ObjType obj);//remove的骨架
 	public:
 		RootController(Server *_server,LoginController *loginController):AdminController(_server,loginController){}
-		virtual string type();
+		//virtual string type();
 		virtual string removeUser(User user);//删除一个用户
 		virtual string removePracticalBook(PracticalBook practicalBook);//删除一本书
 };
@@ -188,7 +184,6 @@ string AdminController::unfreeze(ObjType obj)
 		return "解冻成功";
 	}
 }
-
 
 template<class ObjType>
 string RootController::removeObject(ObjType obj)

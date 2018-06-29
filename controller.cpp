@@ -10,7 +10,6 @@ User AbstractController::getSelf()
 vector<string> LoginController::login(const string &userName,const string &password)
 {
 	user=User(userName,password);
-	// user=tmp;
 	ErrorCode errorCode=server->userLogin(user);
 	if(errorCode==noError)
 	{	
@@ -37,7 +36,7 @@ vector<string> LoginController::login(const string &userName,const string &passw
 	
 string ReaderController::type()
 {
-	return "Reader";
+	return user["Role"];
 }
 
 void ReaderController::infoBook()
@@ -164,7 +163,6 @@ Record ReaderController::getRecord(int number)
 	return records[number-1];
 }
 
-
 string ReaderController::listBorrowingBooks(const User &_user)
 {
 	info.clear();
@@ -222,10 +220,10 @@ string ReaderController::readRecord(User _user)
 	}
 }
 
-string AdminController::type()
+/*string AdminController::type()
 {
 	return "Administrator";
-}
+}*/
 
 void AdminController::infoUser()
 {
@@ -257,7 +255,7 @@ string AdminController::findUser(const string &username)
 string AdminController::registerUser(const string &username,const string &password,string identity="Reader")
 {
 	User _user=User(username,password);
-	if(identity!="Root"||identity!="Administrator")
+	if(identity!="Root"||identity!="Admin")
 		identity="Reader";
 	_user.update("Role",identity);//commands[2]里存放身份,在client操作(前端衔接)的时候直接补(如果command2没有操作或输入错误的话,那么默认是reader)
 	ErrorCode errorcode=server->add(user,_user);
@@ -275,7 +273,7 @@ string AdminController::addBook(Book &book)
 {
 	bookToPractical(book);
 	int j=practicalBooks.size();
-	stringstream ss; ss<<j+2;
+	stringstream ss; ss<<j+1;
 	PracticalBook practicalBook=PracticalBook(book["No"],ss.str());
 	ErrorCode errorcode=server->add(user,practicalBook);
 	switch(errorcode)
@@ -295,10 +293,11 @@ string AdminController::addNewBook()
 	vector<string>s=book.explicitKey();
 	for(int i=0;i<6;i++)
 	{
-		book.update(s[i],commands[i]);
+		if(commands[i]!="-")
+			book.update(s[i],commands[i]);
 	}
 	server->add(user,book);
-	addBook(book);
+	return addBook(book);
 }
 
 string AdminController::showPendingBook()
@@ -368,6 +367,7 @@ string AdminController::showFreezeUser()
 		return "共发现"+ss.str()+"个被冻结的用户";
 }
 
+
 string AdminController::readBookRecord(const PracticalBook &practicalBook)
 {
 	info.clear();
@@ -384,11 +384,10 @@ string AdminController::readBookRecord(const PracticalBook &practicalBook)
 	}
 }
 
-
-string RootController::type()
+/*string RootController::type()
 {
 	return "Root";
-}
+}*/
 
 string RootController::removeUser(User user)
 {

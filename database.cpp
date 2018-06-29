@@ -97,7 +97,7 @@ bool Database::findOne(Object& obj){
 	auto collection=client[dbName][obj.typeName()];
 	document doc=toDocumentForFind(obj);
 	auto info=collection.find_one(doc.view());
-	if (info&&info->view()["Status"].get_utf8().value!="Frozen"){
+	if (info&&string(info->view()["Status"].get_utf8().value)!="Frozen"){
 		for (int k=0;k<2;++k)for (auto key:(k?obj.explicitKey():obj.implicitKey())){
 			obj.update(key,string(info->view()[key].get_utf8().value));
 		}
@@ -110,7 +110,7 @@ bool Database::objectExist(const Object& obj){
 	auto collection=db[obj.typeName()];
 	document doc=toDocument(obj);
 	auto info=collection.find_one(doc.view());
-	if (info&&info->view()["Status"].get_utf8().value!="Frozen"){
+	if (info&&string(info->view()["Status"].get_utf8().value)!="Frozen"){
 		return 1;
 	}
 	return 0;
