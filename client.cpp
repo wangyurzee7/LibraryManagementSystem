@@ -6,7 +6,10 @@ string Client::login()
 {
 		cout<<"请输入用户名和密码"<<endl;
 		string a,b;
-		cin >> a >> b;
+		cin >> a;
+		system("stty -echo");
+		cin >> b;
+		system("stty echo");
 		vector<string> s=loginController->login(a,b);
 		if(s[0]!="错误")
 		{	
@@ -35,7 +38,7 @@ void Client::outputInfo()
 			cout<<i/3+1<<" ";
 		cout<<controller->info[i]<<" ";
 		if(i%3==2)
-		if(i%3==0)
+		// if(i%3==0)
 			cout<<endl;
 	}
 }
@@ -86,22 +89,25 @@ void Client::afterSearchBook()
 			{
 				cout<<"请输入书的序号"<<endl;
 				int number;
-					cin >>number;
+				cin >>number;
 				switch(key)
 				{
 					case 2:
 						showBook(number);
+						break;
 					case 3:
 						borrowBook(number);//通过book来借阅
+						break;
 					case 4:
 						browseBook(number);//通过book来浏览
+						break;
 					default:
 						cout<< "命令错误"<<endl;
 				}
 			}
 		}
 	}
-	}
+}
 
 void Client::showBook(int number)
 {
@@ -132,31 +138,34 @@ void Client::showBook(int number)
 			{
 				case 1:
 					editBook(book);
-			default:
-			{
-				int number;
-				cin >> number;
-				switch(key)
-				{
-				case 2:
-					readBookRecord(number);
-				case 3:
-					freezeBook(number);
-				case 4:
-					addBookFromExist(number);
-				case 5:
-				{
-					if(controller->type()=="Root")
-						removeBook(number);
-					else
-						cout<<"命令错误或您无权执行此操作"<<endl;
-				}
+					break;
 				default:
-					cout<<"命令错误或您无权执行此操作"<<endl;
-				}
-				}
+				{
+					int number;
+					cin >> number;
+					switch(key)
+					{
+						case 2:
+							readBookRecord(number);
+							break;
+						case 3:
+							freezeBook(number);
+							break;
+						case 4:
+							addBookFromExist(number);
+							break;
+						case 5:
+							if(controller->type()=="Root")
+								removeBook(number);
+							else
+								cout<<"命令错误或您无权执行此操作"<<endl;
+							break;
+						default:
+							cout<<"命令错误或您无权执行此操作"<<endl;
+					}
 				}
 			}
+		}
 	}
 }
 
@@ -249,19 +258,21 @@ void Client::afterSearchUser()
 	{
 		cout<<instruction<<endl;
 		cin >> key;
+		if (key==0) return;
 		cout<<"请输入用户的序号"<<endl;
 		int number;
 		cin >> number;
 		switch(key)
 		{
-			case 0:
-				return;
 			case 1:
 				showUser(number);
+				break;
 			case 2:
 				freezeUser(number);
+				break;
 			case 3:
 				readUserRecord(number);
+				break;
 			case 4:
 			{
 				string s=controller->type();
@@ -270,12 +281,13 @@ void Client::afterSearchUser()
 				else
 					cout<<"命令错误"<<endl;
 			}
+				break;
 			default:
 				cout<<"命令错误"<<endl;
 		}
-		}
-		
 	}
+		
+}
 
 void Client::searchUser()//对于user的操作
 {
@@ -304,13 +316,13 @@ void Client::registerUser()
 	string userName,password1,password2,identity;
 	cout<<"请输入用户名"<<endl;
 	cin >> userName;
-	cout<<"请输入密码"<<endl;
-	system("stty -echo");
-	cin >> password1;
-	cout<<"请再次输入密码"<<endl;
 	bool pass=false;
+	system("stty -echo");
 	while(!pass)
 	{
+		cout<<"请输入密码"<<endl;
+		cin >> password1;
+		cout<<"请再次输入密码"<<endl;
 		cin >> password2;
 		if(password1==password2)
 			pass=true;
@@ -460,26 +472,28 @@ void Client::showPending()
 		cin >> key;
 		switch(key)
 		{
-		case 0:
-			return;
-		default:
-		{
-			cout<<"请输入操作序号"<<endl;
-			int number;
-			cin >> number;
-			switch(key)
+			case 0:
+				return;
+			default:
 			{
-				case 1:
-					deal(number,1);
-				case 2:
-					deal(number,0);
-				default:
-					cout<<"操作输入错误"<<endl;
+				cout<<"请输入操作序号"<<endl;
+				int number;
+				cin >> number;
+				switch(key)
+				{
+					case 1:
+						deal(number,1);
+						break;
+					case 2:
+						deal(number,0);
+						break;
+					default:
+						cout<<"操作输入错误"<<endl;
+				}
 			}
 		}
-		}
-		}
 	}
+}
 
 void Client::deal(int number, bool accept)
 {
@@ -558,22 +572,27 @@ void Client::main()
 		cin >> option;
 		switch (option)
 		{
-			case 0:
-			{
+			case 0:{
 				cout<<"成功退出"<<endl;
 				delete controller;
 				return;
 			}
+				break;
 			case 1:
 				searchBook();
+				break;
 			case 2:
 				higherSearchBook();
+				break;
 			case 3:
 				readSelfRecord();
+				break;
 			case 4:
 				modifyPassword();
+				break;
 			case 5:
 				listBorrowingBooks();
+				break;
 			default:
 			{
 				if(controller->type()=="Reader")
@@ -584,19 +603,23 @@ void Client::main()
 					{
 						case 6:
 							addNewBook();
+							break;
 						case 7:
 							showPending();
+							break;
 						case 8:
 							searchUser();
+							break;
 						case 9:
 							registerUser();
+							break;
 						default:
 							cout<<"命令错误"<<endl;	
-						}
 					}
-				}		
+				}
 			}
 		}
+	}
 }
 //======Gu Gu Gu!======
 

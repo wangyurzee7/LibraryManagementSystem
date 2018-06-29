@@ -255,11 +255,13 @@ string AdminController::findUser(const string &username)
 string AdminController::registerUser(const string &username,const string &password,string identity="Reader")
 {
 	User _user=User(username,password);
-	if(identity!="Root"||identity!="Admin")
+	if(identity!="Root"&&identity!="Admin")
 		identity="Reader";
 	_user.update("Role",identity);//commands[2]里存放身份,在client操作(前端衔接)的时候直接补(如果command2没有操作或输入错误的话,那么默认是reader)
 	ErrorCode errorcode=server->add(user,_user);
 	switch(errorcode){
+		case objectExists:
+			return "用户名已被占用";
 		case invalidInfo:
 			return "信息无效";
 		case permissionDenied:
