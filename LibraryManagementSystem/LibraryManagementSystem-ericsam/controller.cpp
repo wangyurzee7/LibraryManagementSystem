@@ -163,23 +163,11 @@ Record ReaderController::getRecord(int number)
 	return records[number-1];
 }
 
-template<class ObjType>
-void ReaderController::show(const ObjType &object)
-{
-	deepInfo.clear();
-	vector<string> temp=object.explicitKey();
-	for(string i:temp)
-	{
-		deepInfo.push_back(i);
-		deepInfo.push_back(object[i]);
-	}
-}
-
 string ReaderController::listBorrowingBooks(const User &_user)
 {
 	info.clear();
 	practicalBooks.clear();
-	vector<string> s;
+	vector<PracticalBook> s;
 	CompleteMatchingSearch key=CompleteMatchingSearch(multiset<Field>{Field("Username",(_user["Username"])),Field("Status","Accepted")});
 	server->search(_user,key,records);
 	for(auto i:records)
@@ -379,21 +367,6 @@ string AdminController::showFreezeUser()
 		return "共发现"+ss.str()+"个被冻结的用户";
 }
 
-template<class ObjType>
-string AdminController::freeze(ObjType obj)
-{
-	ErrorCode err=server->freeze(user,obj);
-	switch(err){
-	case objectNotAccessible:
-		return "对象不可被冻结";
-	case loginAgain:
-		return "您已掉线,请再次登录";
-	case permissionDenied:
-		return "您无权限冻结此对象";
-	case noError:
-		return "冻结成功";
-	}
-} 
 
 string AdminController::readBookRecord(const PracticalBook &practicalBook)
 {
@@ -411,41 +384,10 @@ string AdminController::readBookRecord(const PracticalBook &practicalBook)
 	}
 }
 
-template<class ObjType>
-string AdminController::unfreeze(ObjType obj)
-{
-	ErrorCode err=server->unfreeze(user,obj);
-	switch(err){
-	case objectNotAccessible:
-		return "对象未被冻结";
-	case loginAgain:
-		return "您已掉线,请再次登录";
-	case permissionDenied:
-		return "您无权限解冻此对象";
-	case noError:
-		return "解冻成功";
-	}
-}
-
 /*string RootController::type()
 {
 	return "Root";
 }*/
-
-template<class ObjType>
-string RootController::removeObject(ObjType obj)
-{
-	ErrorCode errorCode=server->remove(user,obj);
-	switch(errorCode)
-	{
-		case permissionDenied:
-			return "删除失败,您没有root权限";
-		case loginAgain:
-			return "您已掉线,请重新登录";
-		case noError:
-			return "成功删除";
-	}
-}
 
 string RootController::removeUser(User user)
 {

@@ -18,7 +18,7 @@ class AbstractController{
 	public:
 		AbstractController(Server *_server):server(_server){}//正确
 		AbstractController(Server *_server,User _user):server(_server),user(_user){}//正确
-		~AbstractController();
+		~AbstractController(){}
 		User getSelf();//拷贝protected成员user
 };
 
@@ -71,7 +71,7 @@ class ReaderController:public AbstractController
 		virtual User getUser(int number){};
 		virtual string findUser(const string &username){}
 		virtual string registerUser(const string &username,const string &password,string identity){}
-		virtual string addBook(Book &book);
+		virtual string addBook(Book &book){}
 		virtual string addNewBook(){}
 		virtual string showPendingBook(){}
 		virtual string deal(Record record,bool accept){}
@@ -137,3 +137,65 @@ class RootController:public AdminController
 		virtual string removeUser(User user);//删除一个用户
 		virtual string removePracticalBook(PracticalBook practicalBook);//删除一本书
 };
+
+
+template<class ObjType>
+void ReaderController::show(const ObjType &object)
+{
+	deepInfo.clear();
+	vector<string> temp=object.explicitKey();
+	for(string i:temp)
+	{
+		deepInfo.push_back(i);
+		deepInfo.push_back(object[i]);
+	}
+}
+
+
+template<class ObjType>
+string AdminController::freeze(ObjType obj)
+{
+	ErrorCode err=server->freeze(user,obj);
+	switch(err){
+	case objectNotAccessible:
+		return "对象不可被冻结";
+	case loginAgain:
+		return "您已掉线,请再次登录";
+	case permissionDenied:
+		return "您无权限冻结此对象";
+	case noError:
+		return "冻结成功";
+	}
+} 
+
+
+template<class ObjType>
+string AdminController::unfreeze(ObjType obj)
+{
+	ErrorCode err=server->unfreeze(user,obj);
+	switch(err){
+	case objectNotAccessible:
+		return "对象未被冻结";
+	case loginAgain:
+		return "您已掉线,请再次登录";
+	case permissionDenied:
+		return "您无权限解冻此对象";
+	case noError:
+		return "解冻成功";
+	}
+}
+
+template<class ObjType>
+string RootController::removeObject(ObjType obj)
+{
+	ErrorCode errorCode=server->remove(user,obj);
+	switch(errorCode)
+	{
+		case permissionDenied:
+			return "删除失败,您没有root权限";
+		case loginAgain:
+			return "您已掉线,请重新登录";
+		case noError:
+			return "成功删除";
+	}
+}
