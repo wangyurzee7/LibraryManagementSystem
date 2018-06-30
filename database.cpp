@@ -123,7 +123,7 @@ string Database::newRecordId(){
 	if (info){
 		string _last=string(info->view()["LastRecordId"].get_utf8().value);
 		ret=to_string(stoi(_last)+1);
-		doc<<"LastRecordId"<<ret;
+		doc<<"$set"<<open_document<<"LastRecordId"<<ret<<close_document;
 		db["LastRecordId"].update_one({},doc.view());
 	}
 	else{
