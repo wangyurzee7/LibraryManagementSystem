@@ -271,7 +271,7 @@ ErrorCode Server::unfreeze(const User &currentUser,ObjType obj){
 	else if (objType=="Book"){
 		authority=db->isAdmin(currentUser);
 	}
-	else if (objType=="ParcticalBook"){
+	else if (objType=="PracticalBook"){
 		authority=db->isAdmin(currentUser);
 	}
 	else if (objType=="Record"){
