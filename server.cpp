@@ -186,7 +186,7 @@ ErrorCode Server::previewBookContent(const User& currentUser,Book book,Content *
 		Field("BookNo",book["No"]),
 		Field("Status","Meowed"),
 		Field("Time",getTime()),
-		Field("Type","Browsing")
+		Field("Type","Previewing")
 	}));
 	
 	string url=book["Url"];
