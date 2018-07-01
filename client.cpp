@@ -21,7 +21,7 @@ string Client::login()
 			cout<<"是否退出?请输入Y/N"<<endl;
 			char quit;
 			cin >> quit;
-			if(quit=='Y'||quit=='y')//这种东西是需要记住,大小写不能分!
+			if(quit=='Y'||quit=='y')
 				return "退出";
 			else
 				return login();
@@ -45,6 +45,7 @@ void Client::outputInfo()
 
 void Client::searchBook()
 {
+	controller->commands.clear();
 	cout<<"请输入书名"<<endl;
 	string name;
 	cin >> name;
@@ -56,6 +57,7 @@ void Client::searchBook()
 
 void Client::higherSearchBook()//高级搜索
 {
+	controller->commands.clear();
 	cout<<"请依次输入书号,书名,作者,ISBN号,出版社和评论,如果没有请输入'-'"<<endl;
 	string that[6];// no >> name >> author>>isbn>>publisher>>remarks
 	for(int i=0;i<6;i++)
@@ -139,26 +141,29 @@ void Client::showBook(int number)
 				case 1:
 					editBook(book);
 					break;
+				case 4:
+					addBookFromExist(number);
+					break;
 				default:
 				{
-					int number;
-					cin >> number;
+					controller->bookToPractical(book);
+					outputInfo();
+					cout<<"请输入具体书本编号"<<endl;
+					int num;
+					cin >> num;
 					switch(key)
 					{
 						case 2:
-							readBookRecord(number);
+							readBookRecord(num);
 							break;
 						case 3:
-							freezeBook(number);
-							break;
-						case 4:
-							addBookFromExist(number);
+							freezeBook(num);
 							break;
 						case 5:
 							if(controller->type()=="Root")
-								removeBook(number);
+								removeBook(num);
 							else
-								cout<<"命令错误或您无权执行此操作"<<endl;
+								cout<<"命令错误或您无权执行此操作"<<endl;							 
 							break;
 						default:
 							cout<<"命令错误或您无权执行此操作"<<endl;
@@ -229,14 +234,21 @@ void Client::returnBook(int number)//无问题
 
 void Client::modifyPassword()//无问题
 {
-	string first,second;
+	string origin,first,second;
 	system("stty -echo");
 	cout<<"请输入密码"<<endl;
-	cin >> first;
-	cout<<"请再次输入密码"<<endl;
-	cin >>second;
+	cin >> origin;
+	cout<<"请输入修改后的密码"<<endl;
+	cin >>first;
+	cout<<"请再次输入修改后的密码"<<endl;
+	cin >> second;
 	system("stty echo");
-	cout<<controller->modifyPassword(first,second)<<endl;
+	if(first!=second)
+		cout<<"两次输入的密码不一致，请重新输入"<<endl;
+	else
+		{
+			cout<<controller->modifyPassword(origin,first)<<endl;
+		}
 }
 
 void Client::readSelfRecord()
@@ -426,7 +438,7 @@ void Client::listFreezeBook()
 void Client::listFreezeUser()
 {
 	cout<<controller->showFreezeUser()<<endl;
-		outputInfo();
+	outputInfo();
 	while(true)
 	{	
 		cout<<"解冻用户请输入1,退出请输入0"<<endl;
@@ -451,13 +463,13 @@ void Client::listFreezeUser()
 void Client::unfreezeBook(int number)
 {
 	PracticalBook book=controller->getPracticalBook(number);
-	cout<<controller->freezeBook(book)<<endl;
+	cout<<controller->unfreezeBook(book)<<endl;
 }
 
 void Client::unfreezeUser(int number)
 {
 	User user=controller->getUser(number);
-	cout<<controller->freezeUser(user)<<endl;
+	cout<<controller->unfreezeUser(user)<<endl;
 }
 
 
@@ -509,24 +521,17 @@ void Client::readBookRecord(int number)
 	switchRecord();
 }
 
-void Client::readUserRecord(int number)//无
+void Client::readUserRecord(int number)
 {
 	User user=controller->getUser(number);
-	cout<<controller->readRecord(user)<<endl;
+	cout<< controller-> readRecord(user) << endl;
 	outputInfo();
 	switchRecord();
 }
 
-void Client::removeBook(int number)//说了
+void Client::removeBook(int number)
 {
-	controller->info.clear();
-	Book book=controller->getBook(number);
-	controller->bookToPractical(book);
-	cout<<"您要删除第几本？"<<endl;
-	outputInfo();
-	int index;
-	cin >> index;
-	PracticalBook practicalBook=controller->getPracticalBook(index);
+	PracticalBook practicalBook=controller->getPracticalBook(number);
 	cout<<controller->removePracticalBook(practicalBook)<<endl;
 }
 
@@ -554,7 +559,7 @@ void Client::main()
 		if(identity=="Reader")
 		{
 			controller=new ReaderController(server,loginController);
-			instruction="一级操作为1.普通搜索,2.高级搜索,3.查看记录,4.修改密码,5.归还书籍,退出请按0";
+			instruction="一级操作为1.普通搜索,2.高级搜索,3.查看记录,4.修改密码,5.归还书籍,请输入操作编号,退出请按0";
 			}
 		else 
 		{
@@ -562,7 +567,7 @@ void Client::main()
 				controller=new AdminController(server,loginController);
 			if(identity=="Root")
 				controller=new RootController(server,loginController);
-				instruction="一级操作为1.普通搜索,2.高级搜索,3.查看记录,4.修改密码,5.归还书籍,6.添加书籍,7.处理借还,8.搜索用户,9.注册用户,请输入操作编号,退出请按0";
+				instruction="一级操作为1.普通搜索,2.高级搜索,3.查看记录,4.修改密码,5.归还书籍,6.查看冻结书籍,7.添加书籍,8.处理借还,9.搜索用户,10.注册用户,11.查看冻结用户,请输入操作编号,退出请按0";
 		}
 	}
 	int option;
@@ -602,16 +607,22 @@ void Client::main()
 					switch(option)
 					{
 						case 6:
-							addNewBook();
+							listFreezeBook();
 							break;
 						case 7:
-							showPending();
+							addNewBook();
 							break;
 						case 8:
-							searchUser();
+							showPending();
 							break;
 						case 9:
+							searchUser();
+							break;
+						case 10:
 							registerUser();
+							break;
+						case 11:
+							listFreezeUser();
 							break;
 						default:
 							cout<<"命令错误"<<endl;	

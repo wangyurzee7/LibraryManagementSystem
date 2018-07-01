@@ -16,8 +16,8 @@ class AbstractController{
 		Server *server;
 		User user;
 	public:
-		AbstractController(Server *_server):server(_server){}//正确
-		AbstractController(Server *_server,User _user):server(_server),user(_user){}//正确
+		AbstractController(Server *_server):server(_server){}
+		AbstractController(Server *_server,User _user):server(_server),user(_user){}
 		~AbstractController(){}
 		User getSelf();//拷贝protected成员user
 };
@@ -25,7 +25,7 @@ class AbstractController{
 class LoginController:public AbstractController
 {
 	public:
-		LoginController(Server *_server):AbstractController(_server){}//正确
+		LoginController(Server *_server):AbstractController(_server){}
 		vector<string> login(const string &userName,const string &password);//登录
 };
 
@@ -159,12 +159,18 @@ string AdminController::freeze(ObjType obj)
 	switch(err){
 	case objectNotAccessible:
 		return "对象不可被冻结";
+		break;
 	case loginAgain:
 		return "您已掉线,请再次登录";
+		break;
 	case permissionDenied:
 		return "您无权限冻结此对象";
+		break;
 	case noError:
 		return "冻结成功";
+		break;
+	default:
+		return "冻结失败";
 	}
 } 
 
@@ -176,12 +182,18 @@ string AdminController::unfreeze(ObjType obj)
 	switch(err){
 	case objectNotAccessible:
 		return "对象未被冻结";
+		break;
 	case loginAgain:
 		return "您已掉线,请再次登录";
+		break;
 	case permissionDenied:
 		return "您无权限解冻此对象";
+		break;
 	case noError:
 		return "解冻成功";
+		break;
+	default:
+		return "解冻失败";
 	}
 }
 
@@ -191,11 +203,14 @@ string RootController::removeObject(ObjType obj)
 	ErrorCode errorCode=server->remove(user,obj);
 	switch(errorCode)
 	{
-		case permissionDenied:
-			return "删除失败,您没有root权限";
+		
 		case loginAgain:
 			return "您已掉线,请重新登录";
+			break;
 		case noError:
 			return "成功删除";
+			break;
+		default:
+			return "删除失败";
 	}
 }

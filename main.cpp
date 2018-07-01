@@ -6,6 +6,7 @@ using namespace std;
 #include "database.h"
 #include "server.h"
 #include "client.h"
+#include "object/user.h"
 
 namespace LMS{
 
@@ -33,6 +34,8 @@ public:
 };
 
 int main(){
+	mongocxx::instance inst{};
 	LMS::LibraryManagementSystem().__main__();
 	return 0;
 }
+
