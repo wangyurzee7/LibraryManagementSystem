@@ -17,7 +17,7 @@ private:
 	Client* client;
 public:
 	LibraryManagementSystem(){
-		db=new Database("TestLMS");
+		db=new Database("LMS");
 		server=new Server(db);
 		client=new Client(server);
 	}
