@@ -65,7 +65,7 @@ public:
 	bool userExist(const User& user); // check "Role" at the same time
 	bool isAdmin(const User& user);
 	bool isRoot(const User& user);
-	bool findOne(Object& obj); // Find according to uniqueKey
+	bool findOne(Object& obj,bool allowFrozen=0); // Find according to uniqueKey
 	bool objectExist(const Object& obj);
 	// Functions above ensures that objects are not Frozen.
 	
@@ -111,7 +111,7 @@ ErrorCode Database::remove(const ObjType& obj){
 	document doc=toDocumentForFind(obj);
 	if (!collection.find_one(doc.view())) return objectNotFound;
 	
-	collection.remove(doc.view());
+	collection.delete_one(doc.view());
 	return noError;
 }
 

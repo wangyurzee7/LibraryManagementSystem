@@ -199,7 +199,7 @@ ErrorCode Server::remove(const User &currentUser,const ObjType &obj){
 	bool authority=db->isRoot(currentUser);
 	
 	if (authority){
-		return db->update(obj);
+		return db->remove(obj);
 	}
 	else{
 		return permissionDenied;
@@ -249,7 +249,7 @@ ErrorCode Server::freeze(const User &currentUser,ObjType obj){
 
 template<typename ObjType>
 ErrorCode Server::unfreeze(const User &currentUser,ObjType obj){
-	if (!db->findOne(obj)) return objectNotFound;
+	if (!db->findOne(obj,1)) return objectNotFound;
 	if (obj["Status"]!="Frozen") return objectNotAccessible;
 	
 	if (!db->userExist(currentUser)) return loginAgain;
