@@ -190,6 +190,7 @@ void Client::editBook(const Book &book)
 {
 	cout<<"依次输入书名,作者,ISBN号,出版商,和评论,如果没有请输入'-'"<<endl;
 	string input;
+	controller->commands.clear();
 	for(int i=0;i<5;i++)
 	{
 		cin >> input;
@@ -382,6 +383,7 @@ void Client::showRecord(int number)
 
 void Client::addNewBook()
 {	
+	controller->commands.clear();
 	cout<<"请依次输入书号,书名,作者,ISBN号,出版社和评论,如果暂时不知道请输入'-'"<<endl;
 	string that[6];// no >> name >> author>>isbn>>publisher>>remarks
 	for(int i=0;i<6;i++)

@@ -185,19 +185,24 @@ Record ReaderController::getRecord(int number)
 
 string ReaderController::listBorrowingBooks(const User &_user)
 {
+	//cout<<"in"<<endl;
 	info.clear();
 	practicalBooks.clear();
 	vector<PracticalBook> s;
 	CompleteMatchingSearch key=CompleteMatchingSearch(multiset<Field>{Field("Username",(_user["Username"])),Field("Status","Accepted"),Field("Type","Borrowing")});
-	// cout<<"that"<<endl;
+	//cout<<"that"<<endl;
 	server->search(_user,key,records);
-	// cout<<"aftersearch"<<endl;
+	//cout<<"aftersearch"<<records.size()<<endl;
 	for(auto i:records)
 	{	CompleteMatchingSearch practicalBookKey=CompleteMatchingSearch(multiset<Field>{Field("No",i["BookNo"]),Field("Index",i["BookIndex"])});
 		server->search(_user,practicalBookKey,s);
-		practicalBooks.push_back(s[0]);
+		{
+			if(s[0]["Status"]!="Borrowed")
+				practicalBooks.push_back(s[0]);
+			}
 	}
-	infoRecord();
+	//cout<<"afterpush"<<endl;
+	infoPracticalBook();
 	int j=practicalBooks.size();
 	stringstream ss;ss<<j;
 	return "共借阅"+ss.str()+"本书";
@@ -309,9 +314,12 @@ string AdminController::addBook(Book &book)
 {
 	bookToPractical(book);
 	int j=0;
+	if(!practicalBooks.empty())
+	{
 	for (PracticalBook i :practicalBooks)
 		j=max(stoi(i["Index"]),j);
-	cout<<j<<endl;
+		}
+//	cout<<j<<endl;
 	stringstream ss; ss<<j+1;
 	PracticalBook practicalBook=PracticalBook(book["No"],ss.str());
 	practicalBook.update("Status","Accessible");
@@ -321,16 +329,14 @@ string AdminController::addBook(Book &book)
 	{
 		case invalidInfo:
 			return "信息无效";
-			break;
 		case permissionDenied:
 			return "您无权添加书籍";
-			break;
 		case noError:
 			return "添加书籍成功";
-			break;
+
 		case objectExists:
 			return "该书籍已经存在";
-			break;
+
 		default:
 			return "添加书籍失败";
 	}
@@ -345,8 +351,18 @@ string AdminController::addNewBook()
 		book.update(s[i],commands[i]);
 	}
 	book.update("Status","Accessible");
-	server->add(user,book);
-	return addBook(book);
+	ErrorCode errorCode=server->add(user,book);
+	switch(errorCode){
+		case invalidInfo:
+			return "信息错误";
+		case loginAgain:
+			return "您已掉线";
+		case noError:
+			return addBook(book);
+		default:
+			return "添加失败";
+	}
+	
 }
 
 string AdminController::showPendingBook()
@@ -386,7 +402,11 @@ string AdminController::editBook(Book book)
 	for(int i=1;i<6;i++)
 	{
 		if(commands[i-1]!="-")
+		{	
+			//cout<< s[i]<<" "<<commands[i-1]<<endl;
 			book.update(s[i],commands[i-1]);
+			//cout << book[s[i]]<<endl;
+			}
 	}
 	ErrorCode errorCode=server->update(user,book);
 	commands.clear();
@@ -452,8 +472,11 @@ string RootController::removePracticalBook(PracticalBook practicalBook)
 	{
 	server->search(user,CompleteMatchingSearch(multiset<Field>{Field("No",practicalBook["No"])}),practicalBooks);
 	if(practicalBooks.empty())
+	{
 		server->search(user,CompleteMatchingSearch(multiset<Field>{Field("No",practicalBook["No"])}),books);
-	return removeObject(books[0]);
+		return removeObject(books[0]);
+		}
+	return result;
 	}
 }
 
