@@ -188,10 +188,10 @@ string ReaderController::listBorrowingBooks(const User &_user)
 	info.clear();
 	practicalBooks.clear();
 	vector<PracticalBook> s;
-	CompleteMatchingSearch key=CompleteMatchingSearch(multiset<Field>{Field("Username",(_user["Username"])),Field("Status","Accepted")});
-	cout<<"that"<<endl;
+	CompleteMatchingSearch key=CompleteMatchingSearch(multiset<Field>{Field("Username",(_user["Username"])),Field("Status","Accepted"),Field("Type","Borrowing")});
+	// cout<<"that"<<endl;
 	server->search(_user,key,records);
-	cout<<"aftersearch"<<endl;
+	// cout<<"aftersearch"<<endl;
 	for(auto i:records)
 	{	CompleteMatchingSearch practicalBookKey=CompleteMatchingSearch(multiset<Field>{Field("No",i["BookNo"]),Field("Index",i["BookIndex"])});
 		server->search(_user,practicalBookKey,s);
