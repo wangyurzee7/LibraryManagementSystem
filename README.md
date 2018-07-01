@@ -63,6 +63,8 @@ make
   * `Object`类继承自`AbstractObject<set>`，将派生出`User`、`Book`、`PracticalBook`、`Record`四个类。分别为用户类、书本信息类（相同书本的集合，存储相同书本的信息，如ISBN、出版社等）、实体书本类（存储每一本具体书籍，与借阅记录对应）、记录类（包含借、还、浏览、预览记录）
 
     * 对于每一个类，我们都设置了成员函数`explicitKey()`、`implicityKey()`、`uniqueKey()`（使用虚函数实现），分别返回显示给用户看的键、隐藏的键（如`Status`等）、可以用于确定唯一对象的类（如用户的用户名）
+	
+	* 我们并未去设计用户、书籍各字段的格式规则，但`Object`预留了判断格式的相关接口。
 
   * `Search`类继承自`AbstractObject<multiset>`（考虑到可能对同一字段有多个检索要求），将派生出`CompleteMatchingSearch`（完全匹配检索）类、`ReSearch`（正则表达式检索）类。
 
@@ -146,6 +148,7 @@ make
 
 * `previewBookContent`：预览一本书籍。（同时生成对应的 Record）
 
+**特别说明：由于`Controller`的负责人的时间原因，并没有完全利用好`Server`的所有接口**
 
 ## Controller
 
