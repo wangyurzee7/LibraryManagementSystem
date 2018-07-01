@@ -93,11 +93,11 @@ bool Database::isRoot(const User& user){
 }
 
 // Find according to uniqueKey
-bool Database::findOne(Object& obj){
+bool Database::findOne(Object& obj,bool allowFrozen){
 	auto collection=client[dbName][obj.typeName()];
 	document doc=toDocumentForFind(obj);
 	auto info=collection.find_one(doc.view());
-	if (info&&string(info->view()["Status"].get_utf8().value)!="Frozen"){
+	if (info&&(allowFrozen||string(info->view()["Status"].get_utf8().value)!="Frozen")){
 		for (int k=0;k<2;++k)for (auto key:(k?obj.explicitKey():obj.implicitKey())){
 			obj.update(key,string(info->view()[key].get_utf8().value));
 		}
@@ -123,7 +123,7 @@ string Database::newRecordId(){
 	if (info){
 		string _last=string(info->view()["LastRecordId"].get_utf8().value);
 		ret=to_string(stoi(_last)+1);
-		doc<<"LastRecordId"<<ret;
+		doc<<"$set"<<open_document<<"LastRecordId"<<ret<<close_document;
 		db["LastRecordId"].update_one({},doc.view());
 	}
 	else{
