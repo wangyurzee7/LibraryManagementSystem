@@ -243,7 +243,7 @@ make
 
 同时，所有人各自负责自己部分的文档。
 
-[这是我们的 git 仓库](https://github.com/wangyurzee7/LibraryManagementSystem)，工作量可以在这里体现。
+[这是我们的 git 仓库](https://github.com/wangyurzee7/LibraryManagementSystem)，工作量可以**大致**在这里体现。
 
 ## 致谢
 
