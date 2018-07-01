@@ -92,9 +92,9 @@ ErrorCode Server::search(const User &currentUser,const Search& key,vector<ObjTyp
 		ret.clear();
 		ErrorCode errorCode=db->search(key,ret);
 		if (key["Status"]==""){
-			for (auto it=ret.begin();it!=ret.end();++it)
-				if ((*it)["Status"]=="Frozen"){
-					swap(*it,ret.back());
+			for (int i=0;i<ret.size();++i)
+				if (ret[i]["Status"]=="Frozen"){
+					swap(ret[i],ret.back());
 					ret.pop_back();
 				}
 		}
