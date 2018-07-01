@@ -8,13 +8,25 @@
 
 * Ubuntu
 
+* 需要安装`MongoDB`
+
 * 依赖`mongo-cxx-driver`（[git 仓库在这里](https://github.com/mongodb/mongo-cxx-driver)）
 
-## Build
+## 编译
 
 在根目录下执行
 ```
 make
+```
+即可
+
+## 运行
+
+先启动 MongoDB。
+
+在根目录下执行
+```
+./main
 ```
 即可
 
