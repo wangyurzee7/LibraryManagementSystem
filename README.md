@@ -147,6 +147,92 @@ make
 * `previewBookContent`：预览一本书籍。（同时生成对应的 Record）
 
 
+## Controller
+
+这是包装 `Server`的类，主要负责**直接与客户端进行交互**(接受客户端的不同命令)并且**调用相应的`Server`类接口**进行后台计算。包括：
+
+- *`AbstractController`*类作为所有控制器的基类,保存所有`Controller`的`Server`指针和`User`类用户对象，接口如下：
+- `getSelf()`：返回用户对象。
+- `LoginController` 类继承自`AbstractController`，负责和登录页面交互，新增接口如下：
+- `ReaderController`类继承自`AbstractController`，为Reader权限的客户端提供接口。接口如下：
+  - `type`：返回权限。
+  - `getBook`：从列表返回一类书。
+  - `getPracticalBook`：从列表返回一本书。
+  - `getRecord`：从列表返回一条记录。
+  - `searchBook`：搜索书籍。
+  - `browseBook`：浏览书籍。
+  - `borrowBook`：借阅书籍。
+  - `bookToPractical`：对于一类书找到其对应不同的实体书。
+  - `show`：显示列表对象的信息。
+  - `listBorrowingBooks`：展示在借书籍。
+  - `returnBook`：归还书籍。
+  - `readrecord`：阅览记录。
+- `AdminController`类继承自`ReaderController`，为Administrator权限的客户端提供接口。新实现接口如下：
+  - `getUser`：从列表返回用户。
+  - `findUser`：搜索用户。
+  - `registerUser`：注册用户。
+  - `addBook`：通过一类书来添加具体的书。
+  - `addNewBook`：添加一本新书 **(无同类书存在的书)**。
+  - `showPendingBook`：显示尚未处理的借换请求。
+  - `deal`：处理一个请求。
+  - `editBook`：编辑一本书的信息。
+  - `showFreezeBook`：显示冻结中的书。
+  - `showFreezeUser`：显示冻结中的用户。
+  - `readBookRecord`：显示一本书的记录。
+
+**下面的函数使用模板实现，包括：**
+
+- `freeze`：冻结一个对象，函数`freezeBook`和`freezeUser`分别负责使用`freeze`冻结书和用户
+- `unfreeze`：解冻一个对象，函数`unfreezeBook`和`unfreezeUser`分别负责使用`unfreeze`解冻书和用户
+- *`RootController`*：类继承自`AbstractController`，为Reader权限的客户端提供接口。新实现接口如下：
+- `removeObject`：由模板形式实现，用来删除一个对象，函数`removeUser`和`removePracticalBook`分别用来负责删除用户和书。
+
+**此外，在AdminController,RootController中新实现的接口均使用虚函数，在其基类里以空函数的形式实现，从而在实现多态的时候体现不同权限的差别。**
+
+## Client
+
+这是包装`Controller`的类，主要负责**读入客户的指令**并且**输出相应的结果**。
+
+**下面将对命令行界面的函数成员做冗长的列举，这些接口与需求有着较大联系，本质上是使用代理/委托模式调用控制器中接口并可视化。**
+
+- `searchBook`：实现搜索书籍的可视化。
+- `higherSearchBook`：实现高级搜索并可视化。
+- `afterSearchBook`：管理搜索书籍后的操作。
+- `browseBook`：实现浏览书籍的可视化。
+- `editBook`：实现编辑书籍信息的可视化。
+- `borrowBook`：实现借阅书籍的可视化。
+- `listBorrowingBooks`：显示在借书籍列表的可视化。
+- `returnBook`：实现归还书籍的可视化。
+- `modifyPassword`：实现修改密码的可视化。
+- `searchUser`：实现搜索用户的可视化。
+- `afterSearchUser`：管理搜索用户之后的操作。
+- `showPending`：将代处理的请求列表并可视化。
+- `deal`：实现处理请求的可视化。
+- `freezeUser`：实现冻结书籍的可视化。
+- `freezeUser`：实现冻结用户的可视化。
+- `listFreezeBook`：将冻结中的书籍列表并可视化。
+- `listFreezeUser`：将冻结中的用户列表并可视化。
+- `unfreezeBook`：实现解冻书籍的可视化。
+- `unfreezeUser`：实现解冻用户的可视化。
+- `readUserRecord`：实现阅读列表中读者的记录的可视化。
+- `readBookRecord`：实现阅读列表中书籍的记录的可视化。
+- `readSelfRecord`：实现阅读本人记录的可视化。
+- `switchRecord`：管理阅读记录列表后的操作。
+- `addNewBook`：添加新书的可视化。
+- `addBookFromExist`：添加有同类书的可视化。
+- `registerUser`：注册用户的可视化。
+- `removeBook`：删除列表书籍的可视化。
+- `removeUser`：删除列表用户的可视化。
+
+为了复用输出信息的代码，该类还包含了以下私有函数成员：
+
+- `showBook`：输出一本书的具体信息。
+- `showRecord`：输出一项记录的具体信息。
+- `showUser`：输出一个用户的具体信息。
+- `outputInfo`：输出列表信息。
+
+ **同时，该类还给出了唯一的接口main，用来读入用户的一级指令从而调用上述函数，实现图书检索和管理的目的。**
+
 ## 分工
 
 王聿中：核心类、Database、Server
